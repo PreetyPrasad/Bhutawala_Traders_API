@@ -8,22 +8,22 @@ namespace Bhutawala_Traders_API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class CategoryController : ControllerBase
+    public class MaterialController : ControllerBase
     {
         private readonly ApplicationDBContext _dbContext;
-        public CategoryController(ApplicationDBContext dBContext)
+        public MaterialController(ApplicationDBContext dBContext)
         {
-            _dbContext = dBContext;
+            _dbContext=dBContext;
         }
         [HttpPost]
-        [Route("InsertCategory")]
-        public async Task<IActionResult> AddCategory(Category category)
+        [Route("InsertMaterial")]
+        public async Task<IActionResult> AddMaterial(Material material)
         {
             try
             {
-                if (!_dbContext.Categories.Any(o => o.CategoryId == category.CategoryId))
+                if (!_dbContext.Materials.Any(o => o.MaterialId == material.MaterialId))
                 {
-                    _dbContext.Categories.Add(category);
+                    _dbContext.Materials.Add(material);
                     await _dbContext.SaveChangesAsync();
                     return Ok(new { Status = "Ok", Result = "Successfully Saved" });
                 }
@@ -39,14 +39,14 @@ namespace Bhutawala_Traders_API.Controllers
         }
 
         [HttpPut]
-        [Route("EditCategory")]
-        public async Task<IActionResult> EditCategory(Category category)
+        [Route("EditMaterial")]
+        public async Task<IActionResult> EditMaterial(Material material)
         {
             try
             {
-                if (!_dbContext.Categories.Any(o => o.CategoryId == category.CategoryId))
+                if (!_dbContext.Materials.Any(o => o.MaterialId == material.MaterialId))
                 {
-                    _dbContext.Categories.Update(category);
+                    _dbContext.Materials.Update(material);
                     await _dbContext.SaveChangesAsync();
                     return Ok(new { Status = "OK", Result = "Successfully Saved" });
                 }
@@ -62,12 +62,12 @@ namespace Bhutawala_Traders_API.Controllers
         }
 
         [HttpGet]
-        [Route("AllCategory")]
-        public async Task<IActionResult> getCategory()
+        [Route("AllMaterial")]
+        public async Task<IActionResult> getMaterial()
         {
             try
             {
-                var Data = await _dbContext.Categories.ToArrayAsync();
+                var Data = await _dbContext.Materials.ToArrayAsync();
                 return Ok(new { Status = "OK", Result = Data });
             }
             catch (Exception ex)
@@ -81,7 +81,7 @@ namespace Bhutawala_Traders_API.Controllers
         {
             try
             {
-                var Data = await _dbContext.Categories.Where(o => o.CategoryId == Id).FirstOrDefaultAsync();
+                var Data = await _dbContext.Materials.Where(o => o.MaterialId == Id).FirstOrDefaultAsync();
 
                 if (Data != null)
                 {
@@ -100,15 +100,15 @@ namespace Bhutawala_Traders_API.Controllers
 
         [HttpGet]
         [Route("Remove/{Id}")]
-        public async Task<IActionResult> deleteCategory(int? Id)
+        public async Task<IActionResult> deleteMaterial(int? Id)
         {
             try
             {
-                var Data = await _dbContext.Categories.Where(o => o.CategoryId == Id).FirstOrDefaultAsync();
+                var Data = await _dbContext.Materials.Where(o => o.MaterialId == Id).FirstOrDefaultAsync();
 
                 if (Data != null)
                 {
-                    _dbContext.Categories.Remove(Data);
+                    _dbContext.Materials.Remove(Data);
                     await _dbContext.SaveChangesAsync();
                     return Ok(new { Status = "OK", Result = "Deleted Successfully" });
                 }
@@ -123,5 +123,4 @@ namespace Bhutawala_Traders_API.Controllers
             }
         }
     }
-
 }
