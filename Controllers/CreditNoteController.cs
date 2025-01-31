@@ -20,7 +20,7 @@ namespace Bhutawala_Traders_API.Controllers
         {
             try
             {
-                if (!_dbContext.CreditNotes.Any(o => o.CreditNoteId == creditNote.CreditNoteId))
+                if (!_dbContext.CreditNotes.Any(o => o.InvoiceId == creditNote.InvoiceId))
                 {
                     _dbContext.CreditNotes.Add(creditNote);
                     await _dbContext.SaveChangesAsync();
@@ -28,7 +28,7 @@ namespace Bhutawala_Traders_API.Controllers
                 }
                 else
                 {
-                    return Ok(new { Status = "Fail", Result = "Already Exists" });
+                    return Ok(new { Status = "Fail", Result = " Credit note for this invoice is already generated" });
                 }
             }
             catch (Exception ex)

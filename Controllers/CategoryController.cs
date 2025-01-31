@@ -21,7 +21,7 @@ namespace Bhutawala_Traders_API.Controllers
         {
             try
             {
-                if (!_dbContext.Categories.Any(o => o.CategoryId == category.CategoryId))
+                if (!_dbContext.Categories.Any(o => o.CategoryName  == category.CategoryName))
                 {
                     _dbContext.Categories.Add(category);
                     await _dbContext.SaveChangesAsync();
@@ -44,7 +44,7 @@ namespace Bhutawala_Traders_API.Controllers
         {
             try
             {
-                if (!_dbContext.Categories.Any(o => o.CategoryId == category.CategoryId))
+                if (!_dbContext.Categories.Any(o => o.CategoryId != category.CategoryId && o.CategoryName == category .CategoryName))
                 {
                     _dbContext.Categories.Update(category);
                     await _dbContext.SaveChangesAsync();

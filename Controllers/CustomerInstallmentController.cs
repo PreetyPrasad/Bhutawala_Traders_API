@@ -21,15 +21,24 @@ namespace Bhutawala_Traders_API.Controllers
         {
             try
             {
-                if (!_dbContext.CustomerInstallments.Any(o => o.InstallmentId == customerInstallment.InstallmentId))
-                {
-                    _dbContext.CustomerInstallments.Add(customerInstallment);
-                    await _dbContext.SaveChangesAsync();
-                    return Ok(new { Status = "Ok", Result = "Successfully Saved" });
+                var billDetail = await _dbContext.InvoiceMasters.FindAsync(customerInstallment.InvoiceId);
+                var totalAmount = await _dbContext.CustomerInstallments.DefaultIfEmpty().SumAsync(o => (o != null ? o.Amount : 0));
+
+                if (billDetail != null) {
+                    if ((totalAmount + customerInstallment.Amount) <= billDetail.Total)
+                    {
+                        _dbContext.CustomerInstallments.Add(customerInstallment);
+                        await _dbContext.SaveChangesAsync();
+                        return Ok(new { Status = "Ok", Result = "Successfully Saved" });
+                    }
+                    else
+                    {
+                        return Ok(new { Status = "Ok", Result = "Successfully Saved" });
+                    }
                 }
                 else
                 {
-                    return Ok(new { Status = "Fail", Result = "Already Exists" });
+                    return NotFound (new { Status = "Fail", Result = "Bill Detail not found" });
                 }
             }
             catch (Exception ex)
