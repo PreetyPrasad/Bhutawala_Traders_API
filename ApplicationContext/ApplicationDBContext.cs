@@ -23,6 +23,6 @@ namespace Bhutawala_Traders_API.ApplicationContext
         public DbSet<PurchaseReturn> PurchaseReturns { get; set; }
         public DbSet<DebitNote> DebitNotes { get; set; }
         public DbSet<CustomerInstallment> CustomerInstallments { get; set; }
-        public DbSet<SellsReturnDetail> SellsReturnDetail { get; set; }
+        public DbSet<SellsReturnDetail> SellsReturnDetails { get; set; }
     }
 }
