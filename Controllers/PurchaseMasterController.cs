@@ -21,15 +21,22 @@ namespace Bhutawala_Traders_API.Controllers
         {
             try
             {
-                if (!_dbContext.PurchaseMasters.Any(o => o.PurchaseId == purchaseMaster.PurchaseId))
+                if (await _dbContext.PurchaseMasters.AnyAsync(o => o.SupplierId == purchaseMaster.SupplierId))
                 {
-                    _dbContext.PurchaseMasters.Add(purchaseMaster);
-                    await _dbContext.SaveChangesAsync();
-                    return Ok(new { Status = "Ok", Result = "Successfully Saved" });
+                    if (!await _dbContext.PurchaseMasters.AnyAsync(o => o.SupplierId == purchaseMaster.SupplierId && o.TransactionYearId == purchaseMaster.TransactionYearId && o.BillNo == o.BillNo))
+                    {
+                        _dbContext.PurchaseMasters.Add(purchaseMaster);
+                        await _dbContext.SaveChangesAsync();
+                        return Ok(new { Status = "Ok", Result = "Successfully Saved" });
+                    }
+                    else
+                    {
+                        return Ok(new { Status = "Fail", Result = "Bill No is already Exists with same Supplier and Transaction Year" });
+                    }
                 }
                 else
                 {
-                    return Ok(new { Status = "Fail", Result = "Already Exists" });
+                    return Ok(new { Status = "Fail", Result = "Supplier not found" });
                 }
             }
             catch (Exception ex)
