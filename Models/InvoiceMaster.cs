@@ -39,5 +39,8 @@ namespace Bhutawala_Traders_API.Models
 
             [RegularExpression(@"^\d{15}$", ErrorMessage = "GSTIN must be exactly 15 characters.")]
             public string? GSTIN { get; set; }
-        }
+
+            [ForeignKey(nameof(TransactionYearMaster))]
+            public int TransactionYearId { get; set; }
+    }
 }

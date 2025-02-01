@@ -16,20 +16,48 @@ namespace Bhutawala_Traders_API.Controllers
             _dbContext = dBContext;
         }
         [HttpPost]
-        [Route("InsertPurchaseMaster")]
-        public async Task<IActionResult> AddPurchaseMaster(Supplier supplier)
+        [Route("Save")]
+        public async Task<IActionResult> AddSupplier(Supplier supplier)
         {
             try
             {
-                if (!_dbContext.Suppliers.Any(o => o.SupplierId == supplier.SupplierId))
+                var existData = await _dbContext.Suppliers.ToListAsync();
+                List<string> errors = new List<string>();
+
+                if (existData.Any(o=> o.ContactNo == supplier.ContactNo)) {
+                    errors.Add("Contact No. is Exists");
+                }
+
+                if (existData.Any(o => o.AccountNo == supplier.AccountNo))
                 {
+                    errors.Add("Account No. is Exists");
+                }
+
+                if (existData.Any(o => o.GSTIN == supplier.GSTIN))
+                {
+                    errors.Add("GST No. is Exists");
+                }
+
+                if (existData.Any(o => o.PAN == supplier.PAN))
+                {
+                    errors.Add("PAN No. is Exists");
+                }
+
+                if ( supplier.Email != null) {
+                    if (existData.Any(o => o.Email == supplier.Email))
+                    {
+                        errors.Add("PAN No. is Exists");
+                    }
+                }
+                
+                if (errors.Count == 0) {
                     _dbContext.Suppliers.Add(supplier);
                     await _dbContext.SaveChangesAsync();
                     return Ok(new { Status = "Ok", Result = "Successfully Saved" });
                 }
                 else
                 {
-                    return Ok(new { Status = "Fail", Result = "Already Exists" });
+                    return Ok(new { Status = "Fail", Result = errors });
                 }
             }
             catch (Exception ex)
@@ -44,20 +72,51 @@ namespace Bhutawala_Traders_API.Controllers
         {
             try
             {
-                if (!_dbContext.Suppliers.Any(o => o.SupplierId == supplier.SupplierId))
+                var existData = await _dbContext.Suppliers.Where(o=> o.SupplierId != supplier.SupplierId).ToListAsync();
+                List<string> errors = new List<string>();
+
+                if (existData.Any(o => o.ContactNo == supplier.ContactNo))
+                {
+                    errors.Add("Contact No. is Exists");
+                }
+
+                if (existData.Any(o => o.AccountNo == supplier.AccountNo))
+                {
+                    errors.Add("Account No. is Exists");
+                }
+
+                if (existData.Any(o => o.GSTIN == supplier.GSTIN))
+                {
+                    errors.Add("GST No. is Exists");
+                }
+
+                if (existData.Any(o => o.PAN == supplier.PAN))
+                {
+                    errors.Add("PAN No. is Exists");
+                }
+
+                if (supplier.Email != null)
+                {
+                    if (existData.Any(o => o.Email == supplier.Email))
+                    {
+                        errors.Add("Email is Exists");
+                    }
+                }
+
+                if (errors.Count == 0)
                 {
                     _dbContext.Suppliers.Update(supplier);
                     await _dbContext.SaveChangesAsync();
-                    return Ok(new { Status = "OK", Result = "Successfully Saved" });
+                    return Ok(new { Status = "Ok", Result = "Successfully Saved" });
                 }
                 else
                 {
-                    return Ok(new { Status = "Fail", Result = "Already Exists" });
+                    return Ok(new { Status = "Fail", Result = errors });
                 }
             }
             catch (Exception ex)
             {
-                return Ok(new { Status = "Fail", Result = "Error: " + ex.Message });
+                return BadRequest(new { Status = "Fail", Result = ex.Message });
             }
         }
 

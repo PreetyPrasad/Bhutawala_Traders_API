@@ -21,7 +21,7 @@ namespace Bhutawala_Traders_API.Controllers
         {
             try
             {
-                if (!_dbContext.Materials.Any(o => o.MaterialId == material.MaterialId))
+                if (!_dbContext.Materials.Any(o => o.MaterialName == material.MaterialName))
                 {
                     _dbContext.Materials.Add(material);
                     await _dbContext.SaveChangesAsync();
@@ -44,7 +44,8 @@ namespace Bhutawala_Traders_API.Controllers
         {
             try
             {
-                if (!_dbContext.Materials.Any(o => o.MaterialId == material.MaterialId))
+                var Data = _dbContext.Materials.Find(material.MaterialId);
+                if (Data!=null)
                 {
                     _dbContext.Materials.Update(material);
                     await _dbContext.SaveChangesAsync();
@@ -52,7 +53,7 @@ namespace Bhutawala_Traders_API.Controllers
                 }
                 else
                 {
-                    return Ok(new { Status = "Fail", Result = "Already Exists" });
+                    return Ok(new { Status = "Fail", Result = "Not Found" });
                 }
             }
             catch (Exception ex)
@@ -67,7 +68,7 @@ namespace Bhutawala_Traders_API.Controllers
         {
             try
             {
-                var Data = await _dbContext.Materials.ToArrayAsync();
+                var Data = await _dbContext.Materials.ToListAsync();
                 return Ok(new { Status = "OK", Result = Data });
             }
             catch (Exception ex)

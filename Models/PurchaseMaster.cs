@@ -11,6 +11,9 @@ namespace Bhutawala_Traders_API.Models
         [ForeignKey(nameof(Supplier))]
         public int SupplierId { get; set; }
 
+        [ForeignKey(nameof(TransactionYearMaster))]
+        public int TransactionYearId {  get; set; }
+
         [Required, Range(0, double.MaxValue, ErrorMessage = "Gross Total must be non-negative.")]
         public double GrossTotal { get; set; }
 
@@ -34,5 +37,6 @@ namespace Bhutawala_Traders_API.Models
 
         [StringLength(200, ErrorMessage = "Note cannot exceed 200 characters.")]
         public string? Note { get; set; }
+
     }
 }

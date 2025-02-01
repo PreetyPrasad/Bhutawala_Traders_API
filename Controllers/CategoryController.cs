@@ -16,7 +16,7 @@ namespace Bhutawala_Traders_API.Controllers
             _dbContext = dBContext;
         }
         [HttpPost]
-        [Route("InsertCategory")]
+        [Route("Save")]
         public async Task<IActionResult> AddCategory(Category category)
         {
             try
@@ -39,7 +39,7 @@ namespace Bhutawala_Traders_API.Controllers
         }
 
         [HttpPut]
-        [Route("EditCategory")]
+        [Route("Edit")]
         public async Task<IActionResult> EditCategory(Category category)
         {
             try
@@ -62,12 +62,12 @@ namespace Bhutawala_Traders_API.Controllers
         }
 
         [HttpGet]
-        [Route("AllCategory")]
+        [Route("List")]
         public async Task<IActionResult> getCategory()
         {
             try
             {
-                var Data = await _dbContext.Categories.ToArrayAsync();
+                var Data = await _dbContext.Categories.ToListAsync();
                 return Ok(new { Status = "OK", Result = Data });
             }
             catch (Exception ex)
@@ -123,5 +123,4 @@ namespace Bhutawala_Traders_API.Controllers
             }
         }
     }
-
 }

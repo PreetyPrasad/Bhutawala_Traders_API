@@ -16,7 +16,7 @@ namespace Bhutawala_Traders_API.Controllers
             _dbContext = dBContext;
         }
         [HttpPost]
-        [Route("InsertPurchaseMaster")]
+        [Route("Save")]
         public async Task<IActionResult> AddPurchaseMaster(PurchaseMaster purchaseMaster)
         {
             try
