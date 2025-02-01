@@ -46,7 +46,7 @@ namespace Bhutawala_Traders_API.Controllers
                 if ( supplier.Email != null) {
                     if (existData.Any(o => o.Email == supplier.Email))
                     {
-                        errors.Add("PAN No. is Exists");
+                        errors.Add("Email No. is Exists");
                     }
                 }
                 

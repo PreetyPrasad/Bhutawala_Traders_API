@@ -21,7 +21,20 @@ namespace Bhutawala_Traders_API.Controllers
         {
             try
             {
-                if (!_dbContext.Inwordstocks.Any(o => o.StockId == InwordStock.StockId))
+                var purchaseExists = await _dbContext.PurchaseMasters.AnyAsync(o => o.PurchaseId == InwordStock.PurchaseId);
+                var materialExists = await _dbContext.Materials.AnyAsync(o => o.MaterialId == InwordStock.MaterialId);
+                List<string> Error = new List<string>();
+
+                if (!purchaseExists) {
+                    Error.Add("Purchase Entry not exists");
+                }
+
+                if (!materialExists)
+                {
+                    Error.Add("Material Entry not exists");
+                }
+
+                if (Error.Count == 0)
                 {
                     _dbContext.Inwordstocks.Add(InwordStock);
                     await _dbContext.SaveChangesAsync();
@@ -29,7 +42,7 @@ namespace Bhutawala_Traders_API.Controllers
                 }
                 else
                 {
-                    return Ok(new { Status = "Fail", Result = "Already Exists" });
+                    return Ok(new { Status = "Fail", Result = Error });
                 }
             }
             catch (Exception ex)
@@ -44,15 +57,29 @@ namespace Bhutawala_Traders_API.Controllers
         {
             try
             {
-                if (!_dbContext.Inwordstocks.Any(o => o.StockId == InwordStock.StockId))
+                var purchaseExists = await _dbContext.PurchaseMasters.AnyAsync(o => o.PurchaseId == InwordStock.PurchaseId);
+                var materialExists = await _dbContext.Materials.AnyAsync(o => o.MaterialId == InwordStock.MaterialId);
+                List<string> Error = new List<string>();
+
+                if (!purchaseExists)
+                {
+                    Error.Add("Purchase Entry not exists");
+                }
+
+                if (!materialExists)
+                {
+                    Error.Add("Material Entry not exists");
+                }
+
+                if (Error.Count == 0)
                 {
                     _dbContext.Inwordstocks.Update(InwordStock);
                     await _dbContext.SaveChangesAsync();
-                    return Ok(new { Status = "OK", Result = "Successfully Saved" });
+                    return Ok(new { Status = "Ok", Result = "Successfully Saved" });
                 }
                 else
                 {
-                    return Ok(new { Status = "Fail", Result = "Already Exists" });
+                    return Ok(new { Status = "Fail", Result = Error });
                 }
             }
             catch (Exception ex)
@@ -67,13 +94,34 @@ namespace Bhutawala_Traders_API.Controllers
         {
             try
             {
-                var Data = await _dbContext.Inwordstocks.ToArrayAsync();
+                var Data = await (from A in _dbContext.Inwordstocks
+                                  join B in _dbContext.Materials on A.MaterialId equals B.MaterialId
+                                  join C in _dbContext.PurchaseMasters on A.PurchaseId equals C.PurchaseId
+                                  join D in _dbContext.Suppliers on A.StockId equals D.SupplierId
+                                  join E in _dbContext.StaffMasters on A.StaffId equals E.StaffId
+                                  select new
+                                  {
+                                      A.StockId,
+                                      B.MaterialId,
+                                      C.SupplierId,
+                                      D.BusinessName,
+                                      B.MaterialName,
+                                      C.BillNo,
+                                      C.PurchaseDate,
+                                      A.Qty,
+                                      A.Unit,
+                                      A.Cost,
+                                      A.RecivedDate,
+                                      A.Note,
+                                      Staffname=E.FullName
+                                  }).ToListAsync();
                 return Ok(new { Status = "OK", Result = Data });
             }
             catch (Exception ex)
             {
                 return Ok(new { Status = "Fail", Result = "Error: " + ex.Message });
             }
+           
         }
         [HttpGet]
         [Route("Details/{Id}")]
