@@ -53,15 +53,25 @@ namespace Bhutawala_Traders_API.Controllers
         {
             try
             {
-                if (!_dbContext.CustomerInstallments.Any(o => o.InstallmentId == customerInstallment.InstallmentId))
+                var billDetail = await _dbContext.InvoiceMasters.FindAsync(customerInstallment.InvoiceId);
+                if (billDetail != null)
                 {
-                    _dbContext.CustomerInstallments.Update(customerInstallment);
-                    await _dbContext.SaveChangesAsync();
-                    return Ok(new { Status = "OK", Result = "Successfully Saved" });
+                    var totalAmount = await _dbContext.CustomerInstallments.Where(o => o.InstallmentId != customerInstallment.InstallmentId).DefaultIfEmpty().SumAsync(o => (o != null ? o.Amount : 0));
+
+                    if ((totalAmount + customerInstallment.Amount) <= billDetail.Total)
+                    {
+                        _dbContext.CustomerInstallments.Update(customerInstallment);
+                        await _dbContext.SaveChangesAsync();
+                        return Ok(new { Status = "OK", Result = "Successfully Saved" });
+                    }
+                    else
+                    {
+                        return Ok(new { Status = "Fail", Result = "Instalment Amount is going more then bill amount" });
+                    }
                 }
                 else
                 {
-                    return Ok(new { Status = "Fail", Result = "Already Exists" });
+                    return Ok(new { Status = "Fail", Result = "Invoice not found" });
                 }
             }
             catch (Exception ex)
@@ -76,7 +86,17 @@ namespace Bhutawala_Traders_API.Controllers
         {
             try
             {
-                var Data = await _dbContext.CustomerInstallments.ToArrayAsync();
+                var Data = await (from A in _dbContext.CustomerInstallments 
+                                  join B in _dbContext.InvoiceMasters on A.InvoiceId equals B.InvoiceId
+                                  join C in _dbContext.StaffMasters on A.StaffId equals C.StaffId
+                                  select new
+                                  {
+                                      A.Amount,
+                                      A.PaymentDate,
+                                      A.RefNo,
+                                      Staff = C.FullName,
+
+                                  }).ToListAsync();
                 return Ok(new { Status = "OK", Result = Data });
             }
             catch (Exception ex)

@@ -123,5 +123,38 @@ namespace Bhutawala_Traders_API.Controllers
             }
         }
 
+        [HttpPost]
+        public async Task<IActionResult> changePassword(StaffMaster Model)
+        {
+            try
+            {
+                var ExistData = await _dbContext.StaffMasters.FindAsync(Model.StaffId);
+                if (ExistData != null)
+                {
+                    if (ExistData.Password == Model.OldPassword)
+                    {
+                        ExistData.Password = Model.NewPassword;
+                        _dbContext.StaffMasters.Update(ExistData);
+                        await _dbContext.SaveChangesAsync();
+                        return Ok(new { Status = "Ok", Result = "Password Change Successfully" });
+                    }
+                    else
+                    {
+                        return Ok(new { Status = "Fail", Result = "Old Password is Incorrect" });
+
+                    }
+                }
+                else
+                {
+                    return Ok(new { Status = "Fail", Result = "Not Found" });
+                }
+            }
+            catch (Exception ex) 
+            {
+                return Ok(new { Status = "Fail", Result = "Error: " + ex.Message });
+
+            }
+        }
+
     }
 }

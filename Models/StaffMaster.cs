@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Bhutawala_Traders_API.Models
 {
@@ -38,5 +39,9 @@ namespace Bhutawala_Traders_API.Models
 
             [Required]
             public DateTime LogDate { get; set; } = DateTime.Now;
+            [NotMapped]
+            public string OldPassword {  get; set; }= string.Empty;
+            [NotMapped]
+             public string NewPassword { get; set; }=string.Empty;
     }
 }
