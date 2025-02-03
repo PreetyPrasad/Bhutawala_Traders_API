@@ -21,6 +21,12 @@ namespace Bhutawala_Traders_API.Controllers
         {
             try
             {
+                var invoiceNo = (_dbContext.InvoiceMasters
+                                           .Where(o=> o.TransactionYearId == invoiceMaster.TransactionYearId)
+                                           .DefaultIfEmpty()
+                                           .Max(o=> (o != null ? o.InvoiceNo : 0)) + 1);
+
+                invoiceMaster.InvoiceNo = invoiceNo;
                 if (!_dbContext.InvoiceMasters.Any(o => o.InvoiceId == invoiceMaster.InvoiceId))
                 {
                     _dbContext.InvoiceMasters.Add(invoiceMaster);
@@ -38,36 +44,13 @@ namespace Bhutawala_Traders_API.Controllers
             }
         }
 
-        [HttpPut]
-        [Route("EditInvoiceMaster")]
-        public async Task<IActionResult> EditInvoiceMaster(InvoiceMaster invoiceMaster)
-        {
-            try
-            {
-                if (!_dbContext.InvoiceMasters.Any(o => o.InvoiceId == invoiceMaster.InvoiceId))
-                {
-                    _dbContext.InvoiceMasters.Update(invoiceMaster);
-                    await _dbContext.SaveChangesAsync();
-                    return Ok(new { Status = "OK", Result = "Successfully Saved" });
-                }
-                else
-                {
-                    return Ok(new { Status = "Fail", Result = "Already Exists" });
-                }
-            }
-            catch (Exception ex)
-            {
-                return Ok(new { Status = "Fail", Result = "Error: " + ex.Message });
-            }
-        }
-
         [HttpGet]
-        [Route("AllInvoiceMaster")]
-        public async Task<IActionResult> getInvoiceMaster()
+        [Route("AllInvoiceMaster/{FinancialYear}")]
+        public async Task<IActionResult> getInvoiceMaster(int FinancialYear)
         {
             try
             {
-                var Data = await _dbContext.InvoiceMasters.ToArrayAsync();
+                var Data = await _dbContext.InvoiceMasters.Where(o=> o.TransactionYearId == FinancialYear).ToArrayAsync();
                 return Ok(new { Status = "OK", Result = Data });
             }
             catch (Exception ex)
@@ -75,42 +58,52 @@ namespace Bhutawala_Traders_API.Controllers
                 return Ok(new { Status = "Fail", Result = "Error: " + ex.Message });
             }
         }
+
         [HttpGet]
         [Route("Details/{Id}")]
         public async Task<IActionResult> getDetails(int? Id)
         {
             try
             {
-                var Data = await _dbContext.InvoiceMasters.Where(o => o.InvoiceId == Id).FirstOrDefaultAsync();
+                
+                var invoiceDetail = await (from A in _dbContext.InvoiceDetails 
+                                  join B in _dbContext.Materials on A.MaterialId equals B.MaterialId
+                                  where (A.InvoiceId == Id)
+                                  select new
+                                  {
+                                      A.InvoiceId,
+                                      B.MaterialName,
+                                      A.InvoiceDetailId,
+                                      A.Rate,
+                                      A.Qty,
+                                      A.Unit,
+                                      A.GSTAmount,
+                                      A.Total
+                                  }).ToListAsync();
 
+                var Data = await _dbContext.InvoiceMasters
+                                           .Where(o => o.InvoiceId == Id)
+                                           .Select(o=> new
+                                           {
+                                               invoiceDetail = invoiceDetail,
+                                               o.InvoiceId,
+                                               o.InvoiceNo,
+                                               o.CustomerName,
+                                               o.ContactNo,
+                                               o.TotalGross,
+                                               o.GST,
+                                               o.GST_TYPE,
+                                               o.Total,
+                                               o.InvoiceDate,
+                                               o.NoticePeriod,
+                                               o.GSTIN,
+                                               o.StaffId,
+                                               o.TransactionYearId
+                                           }).FirstOrDefaultAsync();
+                
                 if (Data != null)
                 {
                     return Ok(new { Status = "OK", Result = Data });
-                }
-                else
-                {
-                    return Ok(new { Status = "Fail", Result = "Not Found" });
-                }
-            }
-            catch (Exception ex)
-            {
-                return Ok(new { Status = "Fail", Result = "Error: " + ex.Message });
-            }
-        }
-
-        [HttpGet]
-        [Route("Remove/{Id}")]
-        public async Task<IActionResult> deleteInvoiceMaster(int? Id)
-        {
-            try
-            {
-                var Data = await _dbContext.InvoiceMasters.Where(o => o.InvoiceId == Id).FirstOrDefaultAsync();
-
-                if (Data != null)
-                {
-                    _dbContext.InvoiceMasters.Remove(Data);
-                    await _dbContext.SaveChangesAsync();
-                    return Ok(new { Status = "OK", Result = "Deleted Successfully" });
                 }
                 else
                 {

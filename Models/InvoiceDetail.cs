@@ -8,6 +8,9 @@ namespace Bhutawala_Traders_API.Models
         [Key]
         public int InvoiceDetailId { get; set; }
 
+        [ForeignKey(nameof(InvoiceMaster))]
+        public int InvoiceId { get; set; }
+
         [ForeignKey(nameof(Material))]
         public int MaterialId { get; set; }
 
