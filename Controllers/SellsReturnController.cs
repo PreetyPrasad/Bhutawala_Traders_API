@@ -62,37 +62,22 @@ namespace Bhutawala_Traders_API.Controllers
                 return BadRequest(new { Status = "Fail", Result = ex.Message });
             }
         }
-
-        [HttpPut]
-        [Route("EditSellsReturn")]
-        public async Task<IActionResult> EditSellsReturn(SellsReturnDetail sellsReturnDetail)
-        {
-            try
-            {
-                if (!_dbContext.SellsReturnDetails.Any(o => o.SellsID == sellsReturnDetail.SellsID))
-                {
-                    _dbContext.SellsReturnDetails.Update(sellsReturnDetail);
-                    await _dbContext.SaveChangesAsync();
-                    return Ok(new { Status = "OK", Result = "Successfully Saved" });
-                }
-                else
-                {
-                    return Ok(new { Status = "Fail", Result = "Already Exists" });
-                }
-            }
-            catch (Exception ex)
-            {
-                return Ok(new { Status = "Fail", Result = "Error: " + ex.Message });
-            }
-        }
-
         [HttpGet]
         [Route("AllSellsReturn")]
         public async Task<IActionResult> getSellsReturn()
         {
             try
             {
-                var Data = await _dbContext.SellsReturnDetails.ToListAsync();
+                var Data = await (from A in _dbContext.SellsReturnDetails
+                                  join B in _dbContext.InvoiceMasters on A.InvoiceId equals B.InvoiceId
+                                  join C in _dbContext.InvoiceDetails on B.InvoiceId equals C.InvoiceDetailId
+                                  join D in _dbContext.Materials on C.MaterialId equals D.MaterialId
+                                  select new
+                                  {
+                                      A.Qty
+                                     
+
+                                  }).ToListAsync();
                 return Ok(new { Status = "OK", Result = Data });
             }
             catch (Exception ex)
@@ -107,7 +92,7 @@ namespace Bhutawala_Traders_API.Controllers
         {
             try
             {
-                var Data = await _dbContext.SellsReturnDetails.Where(o => o.SellsID == Id).FirstOrDefaultAsync();
+                var Data = await _dbContext.SellsReturnDetails.Where(o => o.ReturnDetailId == Id).FirstOrDefaultAsync();
 
                 if (Data != null)
                 {
@@ -130,7 +115,7 @@ namespace Bhutawala_Traders_API.Controllers
         {
             try
             {
-                var Data = await _dbContext.SellsReturnDetails.Where(o => o.SellsID == Id).FirstOrDefaultAsync();
+                var Data = await _dbContext.SellsReturnDetails.Where(o => o.ReturnDetailId == Id).FirstOrDefaultAsync();
 
                 if (Data != null)
                 {

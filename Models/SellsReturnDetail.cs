@@ -6,10 +6,7 @@ namespace Bhutawala_Traders_API.Models
     public class SellsReturnDetail
     {
         [Key]
-        public int SellsID { get; set; }
-
-        [ForeignKey(nameof(StaffMaster))]
-        public int StaffId { get; set; }
+        public int ReturnDetailId { get; set; }
 
         [ForeignKey(nameof(InvoiceMaster))]
         public int InvoiceId { get; set; }
@@ -20,6 +17,9 @@ namespace Bhutawala_Traders_API.Models
         [ForeignKey(nameof(InvoiceDetail))]
         public int InvoiceDetailId { get; set; }
 
+        [ForeignKey(nameof(SalesReturn))]
+        public int SalesReturnId { get; set; }
+     
         [Required(ErrorMessage = "Quantity is required.")]
         [Range(0, double.MaxValue, ErrorMessage = "Quantity must be non-negative.")]
         public double Qty { get; set; }
@@ -27,5 +27,6 @@ namespace Bhutawala_Traders_API.Models
         [Required(ErrorMessage = "Unit is required.")]
         [StringLength(50, ErrorMessage = "Unit cannot exceed 50 characters.")]
         public string? Unit { get; set; }
+
     }
 }

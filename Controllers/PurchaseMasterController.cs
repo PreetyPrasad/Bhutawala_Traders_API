@@ -51,7 +51,7 @@ namespace Bhutawala_Traders_API.Controllers
         {
             try
             {
-                if (!_dbContext.PurchaseMasters.Any(o => o.PurchaseId == purchaseMaster.PurchaseId))
+                if (_dbContext.PurchaseMasters.Any(o => o.PurchaseId == purchaseMaster.PurchaseId))
                 {
                     _dbContext.PurchaseMasters.Update(purchaseMaster);
                     await _dbContext.SaveChangesAsync();

@@ -9,6 +9,7 @@ namespace Bhutawala_Traders_API.Models
         public InvoiceMaster()
         {
             InvoiceDetails = new HashSet<InvoiceDetail>();
+            installments = new HashSet<CustomerInstallment>();
         }
 
         [Key]   
@@ -48,5 +49,6 @@ namespace Bhutawala_Traders_API.Models
         [ForeignKey(nameof(TransactionYearMaster))]
         public int TransactionYearId { get; set; }
         public ICollection<InvoiceDetail> InvoiceDetails { get; set; }
+        public ICollection<CustomerInstallment> installments { get; set; }
     }
 }
