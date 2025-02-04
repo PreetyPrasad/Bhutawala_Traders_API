@@ -20,7 +20,7 @@ namespace Bhutawala_Traders_API.Controllers
         {
             try
             {
-                if (!_dbContext.ApplyCredits.Any())
+                if (!_dbContext.ApplyCredits.Any(o => o.ApplyId == ApplyCredit.Appl))
                 {
                     _dbContext.ApplyCredits.Add(applyCredit);
                     await _dbContext.SaveChangesAsync();

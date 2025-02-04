@@ -4,6 +4,7 @@ using Bhutawala_Traders_API.ApplicationContext;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Bhutawala_Traders_API.Migrations
 {
     [DbContext(typeof(ApplicationDBContext))]
-    partial class ApplicationDBContextModelSnapshot : ModelSnapshot
+    [Migration("20250201084536_transaction_table")]
+    partial class transaction_table
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -169,12 +172,6 @@ namespace Bhutawala_Traders_API.Migrations
                     b.Property<double>("GSTAmount")
                         .HasColumnType("float");
 
-                    b.Property<int>("InvoiceId")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("InvoiceMasterInvoiceId")
-                        .HasColumnType("int");
-
                     b.Property<int>("MaterialId")
                         .HasColumnType("int");
 
@@ -193,8 +190,6 @@ namespace Bhutawala_Traders_API.Migrations
                         .HasColumnType("nvarchar(50)");
 
                     b.HasKey("InvoiceDetailId");
-
-                    b.HasIndex("InvoiceMasterInvoiceId");
 
                     b.ToTable("InvoiceDetails");
                 });
@@ -622,18 +617,6 @@ namespace Bhutawala_Traders_API.Migrations
                     b.HasKey("SupplierId");
 
                     b.ToTable("Suppliers");
-                });
-
-            modelBuilder.Entity("Bhutawala_Traders_API.Models.InvoiceDetail", b =>
-                {
-                    b.HasOne("Bhutawala_Traders_API.Models.InvoiceMaster", null)
-                        .WithMany("InvoiceDetails")
-                        .HasForeignKey("InvoiceMasterInvoiceId");
-                });
-
-            modelBuilder.Entity("Bhutawala_Traders_API.Models.InvoiceMaster", b =>
-                {
-                    b.Navigation("InvoiceDetails");
                 });
 #pragma warning restore 612, 618
         }

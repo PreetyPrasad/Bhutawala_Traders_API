@@ -8,22 +8,22 @@ namespace Bhutawala_Traders_API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class StaffMasterController : ControllerBase
+    public class PurchaseReturnController : ControllerBase
     {
         private readonly ApplicationDBContext _dbContext;
-        public StaffMasterController(ApplicationDBContext dBContext)
+        public PurchaseReturnController(ApplicationDBContext dBContext)
         {
             _dbContext = dBContext;
         }
         [HttpPost]
-        [Route("InsertStaffMaster")]
-        public async Task<IActionResult> AddStaffMaster(StaffMaster staffMaster)
+        [Route("InsertPurchaseReturn")]
+        public async Task<IActionResult> AddPurchaseReturn(PurchaseReturn purchaseReturn)
         {
             try
             {
-                if (!_dbContext.StaffMasters.Any(o => o.FullName == staffMaster.FullName))
+                if (!_dbContext.PurchaseReturns.Any(o => o.PurchaseReturnId == purchaseReturn.PurchaseReturnId))
                 {
-                    _dbContext.StaffMasters.Add(staffMaster);
+                    _dbContext.PurchaseReturns.Add(purchaseReturn);
                     await _dbContext.SaveChangesAsync();
                     return Ok(new { Status = "Ok", Result = "Successfully Saved" });
                 }
@@ -39,14 +39,14 @@ namespace Bhutawala_Traders_API.Controllers
         }
 
         [HttpPut]
-        [Route("EditStaffMaster")]
-        public async Task<IActionResult> EditStaffMaster(StaffMaster staffMaster)
+        [Route("EditPurchaseReturn")]
+        public async Task<IActionResult> EditPurchaseReturn(PurchaseReturn purchaseReturn)
         {
             try
             {
-                if (!_dbContext.StaffMasters.Any(o => o.FullName == staffMaster.FullName ))
+                if (!_dbContext.PurchaseReturns.Any(o => o.PurchaseReturnId == purchaseReturn.PurchaseReturnId))
                 {
-                    _dbContext.StaffMasters.Update(staffMaster);
+                    _dbContext.PurchaseReturns.Update(purchaseReturn);
                     await _dbContext.SaveChangesAsync();
                     return Ok(new { Status = "OK", Result = "Successfully Saved" });
                 }
@@ -62,12 +62,12 @@ namespace Bhutawala_Traders_API.Controllers
         }
 
         [HttpGet]
-        [Route("AllStaffMaster")]
-        public async Task<IActionResult> getStaffMaster()
+        [Route("AllPurchaseReturn")]
+        public async Task<IActionResult> getPurchaseReturn()
         {
             try
             {
-                var Data = await _dbContext.StaffMasters.ToListAsync();
+                var Data = await _dbContext.PurchaseReturns.ToArrayAsync();
                 return Ok(new { Status = "OK", Result = Data });
             }
             catch (Exception ex)
@@ -81,7 +81,7 @@ namespace Bhutawala_Traders_API.Controllers
         {
             try
             {
-                var Data = await _dbContext.StaffMasters.Where(o => o.StaffId == Id).FirstOrDefaultAsync();
+                var Data = await _dbContext.PurchaseReturns.Where(o => o.PurchaseReturnId == Id).FirstOrDefaultAsync();
 
                 if (Data != null)
                 {
@@ -100,15 +100,15 @@ namespace Bhutawala_Traders_API.Controllers
 
         [HttpGet]
         [Route("Remove/{Id}")]
-        public async Task<IActionResult> deleteCategory(int? Id)
+        public async Task<IActionResult> deletePurchaseReturn(int? Id)
         {
             try
             {
-                var Data = await _dbContext.StaffMasters.Where(o => o.StaffId == Id).FirstOrDefaultAsync();
+                var Data = await _dbContext.PurchaseReturns.Where(o => o.PurchaseReturnId == Id).FirstOrDefaultAsync();
 
                 if (Data != null)
                 {
-                    _dbContext.StaffMasters.Remove(Data);
+                    _dbContext.PurchaseReturns.Remove(Data);
                     await _dbContext.SaveChangesAsync();
                     return Ok(new { Status = "OK", Result = "Deleted Successfully" });
                 }
@@ -122,39 +122,5 @@ namespace Bhutawala_Traders_API.Controllers
                 return Ok(new { Status = "Fail", Result = "Error: " + ex.Message });
             }
         }
-
-        [HttpPost]
-        public async Task<IActionResult> changePassword(StaffMaster Model)
-        {
-            try
-            {
-                var ExistData = await _dbContext.StaffMasters.FindAsync(Model.StaffId);
-                if (ExistData != null)
-                {
-                    if (ExistData.Password == Model.OldPassword)
-                    {
-                        ExistData.Password = Model.NewPassword;
-                        _dbContext.StaffMasters.Update(ExistData);
-                        await _dbContext.SaveChangesAsync();
-                        return Ok(new { Status = "Ok", Result = "Password Change Successfully" });
-                    }
-                    else
-                    {
-                        return Ok(new { Status = "Fail", Result = "Old Password is Incorrect" });
-
-                    }
-                }
-                else
-                {
-                    return Ok(new { Status = "Fail", Result = "Not Found" });
-                }
-            }
-            catch (Exception ex) 
-            {
-                return Ok(new { Status = "Fail", Result = "Error: " + ex.Message });
-
-            }
-        }
-
     }
 }
