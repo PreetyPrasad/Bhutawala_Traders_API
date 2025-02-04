@@ -17,20 +17,45 @@ namespace Bhutawala_Traders_API.Controllers
         }
         [HttpPost]
         [Route("InsertSellsReturn")]
-        public async Task<IActionResult> AddSellsReturn(SellsReturnDetail sellsReturnDetail)
+        public async Task<IActionResult> AddSellsReturn(List<SellsReturnDetail> sellsReturnDetail, int InvoiceId, string PaymentMode, int StaffId)
         {
             try
             {
-                if (!_dbContext.SellsReturnDetails.Any(o => o.SellsID == sellsReturnDetail.SellsID))
+                var invoiceDetail = _dbContext.InvoiceDetails.FirstOrDefault(o => o.InvoiceDetailId == InvoiceId);
+
+                if (invoiceDetail == null)
                 {
-                    _dbContext.SellsReturnDetails.Add(sellsReturnDetail);
+                    return BadRequest(new { Status = "Fail", Result = "Invoice detail not found." });
+                }
+
+                var invoiceDetails = await _dbContext.InvoiceDetails.Where(o=> o.InvoiceDetailId == InvoiceId).ToListAsync();
+                double total = 0;
+                foreach (var list in sellsReturnDetail)
+                {
+                    var details = invoiceDetails.Where(o => o.InvoiceDetailId == list.InvoiceDetailId && o.Qty <= list.Qty).FirstOrDefault();
+                    if (details != null)
+                    {
+                        total += (list.Qty *  (details.Rate + details.GSTAmount));
+                        _dbContext.SellsReturnDetails.Add(list);
+                        await _dbContext.SaveChangesAsync();
+                    }                    
+                }
+
+                if (PaymentMode == "Credit Note")
+                {
+                    int NoteNo = (_dbContext.CreditNotes.DefaultIfEmpty().Max(o => (o != null ? o.NoteNo : 0)) + 1);
+                    CreditNote CN = new CreditNote()
+                    {
+                        Amount = total,
+                        InvoiceId = InvoiceId,
+                        StaffId = StaffId,
+                        NoteNo = NoteNo,
+                        NoteDate = DateTime.Now
+                    };
                     await _dbContext.SaveChangesAsync();
-                    return Ok(new { Status = "Ok", Result = "Successfully Saved" });
                 }
-                else
-                {
-                    return Ok(new { Status = "Fail", Result = "Already Exists" });
-                }
+                
+                return Ok(new { Status = "Ok", Result = "Successfully Saved" });
             }
             catch (Exception ex)
             {

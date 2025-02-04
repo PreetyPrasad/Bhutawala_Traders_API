@@ -11,7 +11,7 @@ namespace Bhutawala_Traders_API.Models
 
         [ForeignKey(nameof(InvoiceMaster))]
         public int InvoiceId { get; set; }
-        public int Amount { get; set; }
+        public double Amount { get; set; }
         public int NoteNo { get; set; }
         public DateTime NoteDate { get; set; }
 
