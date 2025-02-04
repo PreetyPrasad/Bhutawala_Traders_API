@@ -47,7 +47,9 @@ namespace Bhutawala_Traders_API.Controllers
                 var Data = _dbContext.Materials.Find(material.MaterialId);
                 if (Data!=null)
                 {
-                    _dbContext.Materials.Update(material);
+                    Data.MaterialName = material.MaterialName;
+
+                    _dbContext.Materials.Update(Data);
                     await _dbContext.SaveChangesAsync();
                     return Ok(new { Status = "OK", Result = "Successfully Saved" });
                 }
