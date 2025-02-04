@@ -9,10 +9,14 @@ namespace Bhutawala_Traders_API.Models
         public int PurchaseId { get; set; }
 
         [ForeignKey(nameof(Supplier))]
-        public int SupplierId { get; set; }
+        public int? SupplierId { get; set; }
+        public virtual Supplier? Supplier { get; set; }
+
 
         [ForeignKey(nameof(TransactionYearMaster))]
-        public int TransactionYearId {  get; set; }
+        public int? TransactionYearId {  get; set; }
+        public virtual TransactionYearMaster? TransactionYearMaster { get; set; }
+
 
         [Required, Range(0, double.MaxValue, ErrorMessage = "Gross Total must be non-negative.")]
         public double GrossTotal { get; set; }

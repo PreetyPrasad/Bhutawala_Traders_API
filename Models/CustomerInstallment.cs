@@ -9,10 +9,14 @@ namespace Bhutawala_Traders_API.Models
         public int InstallmentId { get; set; }
 
         [ForeignKey(nameof(StaffMaster))]
-        public int StaffId { get; set; }
+        public int? StaffId { get; set; }
+        public virtual StaffMaster? StaffMaster { get; set; }
+
 
         [ForeignKey(nameof(InvoiceMaster))]
-        public int InvoiceId { get; set; }
+        public int? InvoiceId { get; set; }
+        public virtual InvoiceMaster? InvoiceMaster { get; set; }
+
 
         [Required(ErrorMessage = "Amount is required.")]
         [Range(0, double.MaxValue, ErrorMessage = "Amount must be non-negative.")]

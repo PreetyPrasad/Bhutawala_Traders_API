@@ -9,10 +9,14 @@ namespace Bhutawala_Traders_API.Models
         public int PurchaseReturnId { get; set; }
 
         [ForeignKey(nameof(PurchaseMaster))]
-        public int PurchaseId { get; set; }
+        public int? PurchaseId { get; set; }
+        public virtual PurchaseMaster? PurchaseMaster { get; set; }
+
 
         [ForeignKey(nameof(InvoiceMaster))]
-        public int InvoiceId { get; set; }
+        public int? InvoiceId { get; set; }
+        public virtual InvoiceMaster? InvoiceMaster { get; set; }
+
 
         [Required, Range(0.01, double.MaxValue, ErrorMessage = "Quantity must be greater than zero.")]
         public double Qty { get; set; }

@@ -9,7 +9,9 @@ namespace Bhutawala_Traders_API.Models
             public int PaymentId { get; set; }
 
             [ForeignKey(nameof(PurchaseMaster))]
-            public int PurchaseId { get; set; }
+            public int? PurchaseId { get; set; }
+            public virtual PurchaseMaster? PurchaseMaster { get; set; }
+
 
             [Required, Range(0.01, double.MaxValue, ErrorMessage = "Amount must be greater than zero.")]
             public double Amount { get; set; }

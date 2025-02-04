@@ -9,7 +9,9 @@ namespace Bhutawala_Traders_API.Models
         public int MaterialId { get; set; }
 
         [ForeignKey(nameof(Category))]
-        public int CategoryId { get; set; }
+        public int? CategoryId { get; set; }
+        public virtual Category? Category { get; set; }
+
 
         [Required, StringLength(100, ErrorMessage = "Material Name cannot exceed 100 characters.")]
         public string? MaterialName { get; set; }

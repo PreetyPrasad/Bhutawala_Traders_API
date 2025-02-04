@@ -14,11 +14,14 @@ namespace Bhutawala_Traders_API.Models
 
         [Key]   
         public int InvoiceId { get; set; }
+
         [ForeignKey(nameof(StaffMaster))]
-            public int StaffId { get; set; }
+        public int? StaffId { get; set; }
+        public virtual StaffMaster? StaffMaster { get; set; }
+
 
         [Required(ErrorMessage = "Invoice Number is required.")]
-        public int InvoiceNo { get; set; }
+        public int? InvoiceNo { get; set; }
 
         [Required, StringLength(100, ErrorMessage = "Customer Name cannot exceed 100 characters.")]
         public string CustomerName { get; set; } = string.Empty;
@@ -40,14 +43,14 @@ namespace Bhutawala_Traders_API.Models
 
         [Required(ErrorMessage = "Invoice Date is required.")]
         public DateTime InvoiceDate { get; set; } = DateTime.Now;
-
         public DateTime NoticePeriod { get; set; } = DateTime.Now;
 
         [RegularExpression(@"^\d{15}$", ErrorMessage = "GSTIN must be exactly 15 characters.")]
         public string? GSTIN { get; set; }
 
         [ForeignKey(nameof(TransactionYearMaster))]
-        public int TransactionYearId { get; set; }
+        public int? TransactionYearId { get; set; }
+        public virtual TransactionYearMaster? TransactionYearMaster { get; set; }
         public ICollection<InvoiceDetail> InvoiceDetails { get; set; }
         public ICollection<CustomerInstallment> installments { get; set; }
     }
