@@ -14,27 +14,27 @@ namespace Bhutawala_Traders_API.Controllers
         {
             _dbContext = dBContext;
         }
-        [HttpPost]
-        [Route("InsertApplyCredit")]
-        public async Task<IActionResult> AddApplyCredit(ApplyCredit applyCredit)
-        {
-            try
-            {
-                if (!_dbContext.ApplyCredits.Any(o => o.ApplyId == ApplyCredit.Appl))
-                {
-                    _dbContext.ApplyCredits.Add(applyCredit);
-                    await _dbContext.SaveChangesAsync();
-                    return Ok(new { Status = "Ok", Result = "Successfully Saved" });
-                }
-                else
-                {
-                    return Ok(new { Status = "Fail", Result = "Already Exists" });
-                }
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { Status = "Fail", Result = ex.Message });
-            }
-        }
+        //[HttpPost]
+        //[Route("InsertApplyCredit")]
+        //public async Task<IActionResult> AddApplyCredit(ApplyCredit applyCredit)
+        //{
+        //    try
+        //    {
+        //        if (!_dbContext.ApplyCredits.Any(o => o.ApplyId == ApplyCredit.Appl))
+        //        {
+        //            _dbContext.ApplyCredits.Add(applyCredit);
+        //            await _dbContext.SaveChangesAsync();
+        //            return Ok(new { Status = "Ok", Result = "Successfully Saved" });
+        //        }
+        //        else
+        //        {
+        //            return Ok(new { Status = "Fail", Result = "Already Exists" });
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return BadRequest(new { Status = "Fail", Result = ex.Message });
+        //    }
+        //}
     }
 }
