@@ -38,7 +38,7 @@ namespace Bhutawala_Traders_API.Controllers
             }
         }
 
-        [HttpPut]
+        [HttpPost]
         [Route("EditMaterial")]
         public async Task<IActionResult> EditMaterial(Material material)
         {
