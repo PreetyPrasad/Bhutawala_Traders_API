@@ -24,5 +24,7 @@ namespace Bhutawala_Traders_API.ApplicationContext
         public DbSet<DebitNote> DebitNotes { get; set; }
         public DbSet<CustomerInstallment> CustomerInstallments { get; set; }
         public DbSet<SellsReturnDetail> SellsReturnDetails { get; set; }
+        public DbSet<TransactionYearMaster>TransactionYearMasters { get; set; }
+
     }
 }
