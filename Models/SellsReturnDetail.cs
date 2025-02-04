@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Bhutawala_Traders_API.Models
 {
-    public class SellsReturnDetail
+    public class SalesReturnDetails
     {
         [Key]
         public int ReturnDetailId { get; set; }

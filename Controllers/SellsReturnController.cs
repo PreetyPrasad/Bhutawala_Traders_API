@@ -17,29 +17,24 @@ namespace Bhutawala_Traders_API.Controllers
         }
         [HttpPost]
         [Route("InsertSellsReturn")]
-        public async Task<IActionResult> AddSellsReturn(List<SellsReturnDetail> sellsReturnDetail, int InvoiceId, string PaymentMode, int StaffId)
+        public async Task<IActionResult> AddSellsReturn(SalesReturn salesReturns, int InvoiceId, string PaymentMode, int StaffId)
         {
             try
             {
-                var invoiceDetail = _dbContext.InvoiceDetails.FirstOrDefault(o => o.InvoiceDetailId == InvoiceId);
-
-                if (invoiceDetail == null)
-                {
-                    return BadRequest(new { Status = "Fail", Result = "Invoice detail not found." });
-                }
-
-                var invoiceDetails = await _dbContext.InvoiceDetails.Where(o=> o.InvoiceDetailId == InvoiceId).ToListAsync();
                 double total = 0;
-                foreach (var list in sellsReturnDetail)
-                {
-                    var details = invoiceDetails.Where(o => o.InvoiceDetailId == list.InvoiceDetailId && o.Qty <= list.Qty).FirstOrDefault();
-                    if (details != null)
-                    {
-                        total += (list.Qty *  (details.Rate + details.GSTAmount));
-                        _dbContext.SellsReturnDetails.Add(list);
-                        await _dbContext.SaveChangesAsync();
-                    }                    
+
+                var returnProducts = salesReturns.SellsReturnDetail.ToList();
+                var invoiceDetail = await _dbContext.InvoiceDetails.Where(o => o.InvoiceId == InvoiceId).ToListAsync();
+
+                foreach (var item in returnProducts) {
+
+                    int Id = Convert.ToInt32(item.InvoiceDetailId);
+                    var detail = invoiceDetail.Where(o=> o.InvoiceDetailId == Id).FirstOrDefault();
+                    total = total + (item.Qty * (detail.Rate + detail.GSTAmount));
                 }
+
+                _dbContext.SalesReturns.Add(salesReturns);
+                await _dbContext.SaveChangesAsync();
 
                 if (PaymentMode == "Credit Note")
                 {
@@ -68,16 +63,31 @@ namespace Bhutawala_Traders_API.Controllers
         {
             try
             {
+
                 var Data = await (from A in _dbContext.SellsReturnDetails
                                   join B in _dbContext.InvoiceMasters on A.InvoiceId equals B.InvoiceId
-                                  join C in _dbContext.InvoiceDetails on B.InvoiceId equals C.InvoiceDetailId
+                                  join C in _dbContext.InvoiceDetails on A.InvoiceId equals C.InvoiceId
                                   join D in _dbContext.Materials on C.MaterialId equals D.MaterialId
+                                  join E in _dbContext.SalesReturns on A.SalesReturnId equals E.SalesReturnId
                                   select new
                                   {
-                                      A.Qty
-                                     
-
+                                      B.InvoiceNo,
+                                      B.CustomerName,
+                                      B.ContactNo,
+                                      B.InvoiceDate,
+                                      salesQty = C.Qty,
+                                      returnQty = A.Qty,
+                                      C.Unit,
+                                      C.Rate,
+                                      C.GSTAmount,
+                                      D.MaterialName,
+                                      E.SalesReturnId,
+                                      E.Paymentmode,
+                                      E.StaffId,
+                                      E.RefNo,
+                                      E.ReturnDate
                                   }).ToListAsync();
+
                 return Ok(new { Status = "OK", Result = Data });
             }
             catch (Exception ex)

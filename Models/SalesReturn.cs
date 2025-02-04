@@ -5,6 +5,11 @@ namespace Bhutawala_Traders_API.Models
 {
     public class SalesReturn
     {
+        public SalesReturn()
+        {
+            SellsReturnDetail = new HashSet<SalesReturnDetails>();
+        }
+
         [Key]
         public int SalesReturnId { get; set; }
         [ForeignKey(nameof(InvoiceMaster))]
@@ -21,6 +26,8 @@ namespace Bhutawala_Traders_API.Models
 
         [ForeignKey(nameof(StaffMaster))]
         public int StaffId { get; set; }
+
+        public ICollection<SalesReturnDetails> SellsReturnDetail { get; set; }
 
     }
 }
