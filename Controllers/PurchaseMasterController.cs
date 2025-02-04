@@ -21,7 +21,7 @@ namespace Bhutawala_Traders_API.Controllers
         {
             try
             {
-                if (await _dbContext.PurchaseMasters.AnyAsync(o => o.SupplierId == purchaseMaster.SupplierId))
+                if (await _dbContext.Suppliers.AnyAsync(o => o.SupplierId == purchaseMaster.SupplierId))
                 {
                     if (!await _dbContext.PurchaseMasters.AnyAsync(o => o.SupplierId == purchaseMaster.SupplierId && o.TransactionYearId == purchaseMaster.TransactionYearId && o.BillNo == o.BillNo))
                     {
@@ -51,7 +51,7 @@ namespace Bhutawala_Traders_API.Controllers
         {
             try
             {
-                if (!_dbContext.PurchaseMasters.Any(o => o.PurchaseId == purchaseMaster.PurchaseId))
+                if (_dbContext.PurchaseMasters.Any(o => o.PurchaseId == purchaseMaster.PurchaseId))
                 {
                     _dbContext.PurchaseMasters.Update(purchaseMaster);
                     await _dbContext.SaveChangesAsync();
