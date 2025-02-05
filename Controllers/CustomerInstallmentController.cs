@@ -16,7 +16,7 @@ namespace Bhutawala_Traders_API.Controllers
             _dbContext = dBContext;
         }
         [HttpPost]
-        [Route("InsertCustomerInstallment")]
+        [Route("Save")]
         public async Task<IActionResult> AddCustomerInstallment(CustomerInstallment customerInstallment)
         {
             try
@@ -47,8 +47,8 @@ namespace Bhutawala_Traders_API.Controllers
             }
         }
 
-        [HttpPut]
-        [Route("EditCustomerInstallment")]
+        [HttpPost]
+        [Route("Edit")]
         public async Task<IActionResult> EditCustomerInstallment(CustomerInstallment customerInstallment)
         {
             try
@@ -81,7 +81,7 @@ namespace Bhutawala_Traders_API.Controllers
         }
 
         [HttpGet]
-        [Route("AllCustomerInstallment")]
+        [Route("List")]
         public async Task<IActionResult> getCustomerInstallment()
         {
             try

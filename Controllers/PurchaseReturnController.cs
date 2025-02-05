@@ -16,7 +16,7 @@ namespace Bhutawala_Traders_API.Controllers
             _dbContext = dBContext;
         }
         [HttpPost]
-        [Route("InsertPurchaseReturn")]
+        [Route("Save")]
         public async Task<IActionResult> AddPurchaseReturn(PurchaseReturn purchaseReturn)
         {
             try
@@ -38,8 +38,8 @@ namespace Bhutawala_Traders_API.Controllers
             }
         }
 
-        [HttpPut]
-        [Route("EditPurchaseReturn")]
+        [HttpPost]
+        [Route("Edit")]
         public async Task<IActionResult> EditPurchaseReturn(PurchaseReturn purchaseReturn)
         {
             try
@@ -62,7 +62,7 @@ namespace Bhutawala_Traders_API.Controllers
         }
 
         [HttpGet]
-        [Route("AllPurchaseReturn")]
+        [Route("List")]
         public async Task<IActionResult> getPurchaseReturn()
         {
             try

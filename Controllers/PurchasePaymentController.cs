@@ -16,7 +16,7 @@ namespace Bhutawala_Traders_API.Controllers
             _dbContext = dBContext;
         }
         [HttpPost]
-        [Route("Insert PurchasePayment")]
+        [Route("Save")]
         public async Task<IActionResult> AddPurchasePayment(PurchasePayment purchasePayment)
         {
             try
@@ -39,7 +39,7 @@ namespace Bhutawala_Traders_API.Controllers
         }
         
         [HttpGet]
-        [Route("AllPurchasePayment")]
+        [Route("List")]
         public async Task<IActionResult> getPurchasePayment()
         {
             try

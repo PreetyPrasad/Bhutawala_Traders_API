@@ -16,7 +16,7 @@ namespace Bhutawala_Traders_API.Controllers
             _dbContext = dBContext;
         }
         [HttpPost]
-        [Route("InsertDebitNote")]
+        [Route("Save")]
         public async Task<IActionResult> AddDebitNote(DebitNote debitNote)
         {
             try
@@ -38,8 +38,8 @@ namespace Bhutawala_Traders_API.Controllers
             }
         }
 
-        [HttpPut]
-        [Route("EditDebitNote")]
+        [HttpPost]
+        [Route("Edit")]
         public async Task<IActionResult> EditDebitNote(DebitNote debitNote)
         {
             try
@@ -62,7 +62,7 @@ namespace Bhutawala_Traders_API.Controllers
         }
 
         [HttpGet]
-        [Route("AllDebitNote")]
+        [Route("List")]
         public async Task<IActionResult> getDebitNote()
         {
             try

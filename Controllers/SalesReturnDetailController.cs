@@ -16,7 +16,7 @@ namespace Bhutawala_Traders_API.Controllers
             _dbContext = dBContext;
         }
         [HttpPost]
-        [Route("InsertSellsReturn")]
+        [Route("Save")]
         public async Task<IActionResult> AddSalesReturn(SalesReturn salesReturns, int InvoiceId, string PaymentMode, int StaffId)
         {
             try
@@ -58,7 +58,7 @@ namespace Bhutawala_Traders_API.Controllers
             }
         }
         [HttpGet]
-        [Route("AllSellsReturn")]
+        [Route("List")]
         public async Task<IActionResult> getSellsReturn()
         {
             try

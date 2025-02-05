@@ -46,7 +46,7 @@ namespace Bhutawala_Traders_API.Controllers
         }
 
         [HttpPut]
-        [Route("EditPurchaseMaster")]
+        [Route("Edit")]
         public async Task<IActionResult> EditPurchaseMaster(PurchaseMaster purchaseMaster)
         {
             try
@@ -69,7 +69,7 @@ namespace Bhutawala_Traders_API.Controllers
         }
 
         [HttpGet]
-        [Route("AllPurchaseMaster")]
+        [Route("List")]
         public async Task<IActionResult> getPurchaseMaster()
         {
             try

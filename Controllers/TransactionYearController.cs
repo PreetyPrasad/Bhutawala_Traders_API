@@ -38,7 +38,7 @@ namespace Bhutawala_Traders_API.Controllers
                 }
             }
 
-            [HttpPut]
+            [HttpPost]
             [Route("Edit")]
             public async Task<IActionResult> EditTransaction(TransactionYearMaster transactionYearMaster)
             {
@@ -62,7 +62,7 @@ namespace Bhutawala_Traders_API.Controllers
             }
 
             [HttpGet]
-            [Route("All")]
+            [Route("List")]
             public async Task<IActionResult> getTransactionRecord()
             {
                 try

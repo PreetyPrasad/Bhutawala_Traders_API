@@ -16,7 +16,7 @@ namespace Bhutawala_Traders_API.Controllers
             _dbContext = dBContext;
         }
         [HttpPost]
-        [Route("InsertApplyCredit")]
+        [Route("Save")]
         public async Task<IActionResult> Add(ApplyCredit applyCredit)
         {
             try
@@ -38,8 +38,8 @@ namespace Bhutawala_Traders_API.Controllers
             }
         }
 
-        [HttpPut]
-        [Route("EditApplyCredit")]
+        [HttpPost]
+        [Route("Edit")]
         public async Task<IActionResult> EditApplyCredit(ApplyCredit applyCredit)
         {
             try
@@ -62,7 +62,7 @@ namespace Bhutawala_Traders_API.Controllers
         }
 
         [HttpGet]
-        [Route("AllApplyCredit")]
+        [Route("List")]
         public async Task<IActionResult> getApplyCredit()
         {
             try

@@ -16,7 +16,7 @@ namespace Bhutawala_Traders_API.Controllers
             _dbContext = dBContext;
         }
         [HttpPost]
-        [Route("InsertInvoiceDetail")]
+        [Route("Save")]
         public async Task<IActionResult> AddInvoiceDetail(InvoiceDetail InvoiceDetail)
         {
             try
@@ -38,8 +38,8 @@ namespace Bhutawala_Traders_API.Controllers
             }
         }
 
-        [HttpPut]
-        [Route("EditInvoiceDetail")]
+        [HttpPost]
+        [Route("Edit")]
         public async Task<IActionResult> EditInvoiceDetail(InvoiceDetail InvoiceDetail)
         {
             try
@@ -62,7 +62,7 @@ namespace Bhutawala_Traders_API.Controllers
         }
 
         [HttpGet]
-        [Route("AllInvoiceDetail")]
+        [Route("List")]
         public async Task<IActionResult> getInvoiceDetail()
         {
             try

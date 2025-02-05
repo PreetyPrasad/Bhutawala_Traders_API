@@ -16,7 +16,7 @@ namespace Bhutawala_Traders_API.Controllers
             _dbContext = dBContext;
         }
         [HttpPost]
-        [Route("InsertCreditNote")]
+        [Route("Save")]
         public async Task<IActionResult> Add(CreditNote creditNote)
         {
             try
@@ -38,8 +38,8 @@ namespace Bhutawala_Traders_API.Controllers
             }
         }
 
-        [HttpPut]
-        [Route("EditCreditNote")]
+        [HttpPost]
+        [Route("Edit")]
         public async Task<IActionResult> EditCreditNote(CreditNote creditNote)
         {
             try
@@ -62,7 +62,7 @@ namespace Bhutawala_Traders_API.Controllers
         }
 
         [HttpGet]
-        [Route("AllCreditNote")]
+        [Route("List")]
         public async Task<IActionResult> getCreditNote()
         {
             try

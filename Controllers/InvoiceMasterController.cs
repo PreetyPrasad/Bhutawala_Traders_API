@@ -16,7 +16,7 @@ namespace Bhutawala_Traders_API.Controllers
             _dbContext = dBContext;
         }
         [HttpPost]
-        [Route("InsertInvoiceMaster")]
+        [Route("Save")]
         public async Task<IActionResult> AddInvoiceMaster(InvoiceMaster invoiceMaster)
         {
             try
@@ -45,7 +45,7 @@ namespace Bhutawala_Traders_API.Controllers
         }
 
         [HttpGet]
-        [Route("AllInvoiceMaster/{FinancialYear}")]
+        [Route("List/{FinancialYear}")]
         public async Task<IActionResult> getInvoiceMaster(int FinancialYear)
         {
             try

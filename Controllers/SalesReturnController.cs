@@ -62,7 +62,7 @@ namespace Bhutawala_Traders_API.Controllers
          }
 
          [HttpGet]
-         [Route("All")]
+         [Route("List")]
          public async Task<IActionResult> get()
          {
              try

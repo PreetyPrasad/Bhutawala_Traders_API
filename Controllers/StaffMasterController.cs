@@ -16,7 +16,7 @@ namespace Bhutawala_Traders_API.Controllers
             _dbContext = dBContext;
         }
         [HttpPost]
-        [Route("InsertStaffMaster")]
+        [Route("Save")]
         public async Task<IActionResult> AddStaffMaster(StaffMaster staffMaster)
         {
             try
@@ -39,7 +39,7 @@ namespace Bhutawala_Traders_API.Controllers
         }
 
         [HttpPut]
-        [Route("EditStaffMaster")]
+        [Route("Edit")]
         public async Task<IActionResult> EditStaffMaster(StaffMaster staffMaster)
         {
             try
@@ -62,7 +62,7 @@ namespace Bhutawala_Traders_API.Controllers
         }
 
         [HttpGet]
-        [Route("AllStaffMaster")]
+        [Route("List")]
         public async Task<IActionResult> getStaffMaster()
         {
             try
@@ -124,6 +124,7 @@ namespace Bhutawala_Traders_API.Controllers
         }
 
         [HttpPost]
+        [Route("ChangePassword")]
         public async Task<IActionResult> changePassword(StaffMaster Model)
         {
             try

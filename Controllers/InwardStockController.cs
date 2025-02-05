@@ -16,7 +16,7 @@ namespace Bhutawala_Traders_API.Controllers
             _dbContext = dBContext;
         }
         [HttpPost]
-        [Route("InsertInwardStock")]
+        [Route("Save")]
         public async Task<IActionResult> AddInwardStock(InwordStock InwordStock)
         {
             try
@@ -52,7 +52,7 @@ namespace Bhutawala_Traders_API.Controllers
         }
 
         [HttpPut]
-        [Route("EditInwordStock")]
+        [Route("Edit")]
         public async Task<IActionResult> EditInwordStock(InwordStock InwordStock)
         {
             try
@@ -89,7 +89,7 @@ namespace Bhutawala_Traders_API.Controllers
         }
 
         [HttpGet]
-        [Route("AllInwordStock")]
+        [Route("List")]
         public async Task<IActionResult> getInwordStock()
         {
             try

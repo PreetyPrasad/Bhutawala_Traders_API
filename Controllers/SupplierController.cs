@@ -66,8 +66,8 @@ namespace Bhutawala_Traders_API.Controllers
             }
         }
 
-        [HttpPut]
-        [Route("EditSupplier")]
+        [HttpPost]
+        [Route("Edit")]
         public async Task<IActionResult> EditSupplier(Supplier supplier)
         {
             try
@@ -121,7 +121,7 @@ namespace Bhutawala_Traders_API.Controllers
         }
 
         [HttpGet]
-        [Route("AllSupplier")]
+        [Route("List")]
         public async Task<IActionResult> getSupplier()
         {
             try

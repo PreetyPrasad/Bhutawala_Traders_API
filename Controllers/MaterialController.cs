@@ -16,7 +16,7 @@ namespace Bhutawala_Traders_API.Controllers
             _dbContext=dBContext;
         }
         [HttpPost]
-        [Route("InsertMaterial")]
+        [Route("Save")]
         public async Task<IActionResult> AddMaterial(Material material)
         {
             try
@@ -39,7 +39,7 @@ namespace Bhutawala_Traders_API.Controllers
         }
 
         [HttpPost]
-        [Route("EditMaterial")]
+        [Route("Edit")]
         public async Task<IActionResult> EditMaterial(Material material)
         {
             try
@@ -65,7 +65,7 @@ namespace Bhutawala_Traders_API.Controllers
         }
 
         [HttpGet]
-        [Route("AllMaterial")]
+        [Route("List")]
         public async Task<IActionResult> getMaterial()
         {
             try
