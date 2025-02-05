@@ -27,7 +27,7 @@ namespace Bhutawala_Traders_API.Models
         public DateTime ReturnDate { get; set; } = DateTime.Now;
 
         [ForeignKey(nameof(StaffMaster))]
-        public int StaffId { get; set; }
+        public int? StaffId { get; set; }
         public virtual StaffMaster? StaffMaster { get; set; }
        
         public ICollection<SalesReturnDetails> SellsReturnDetail { get; set; }

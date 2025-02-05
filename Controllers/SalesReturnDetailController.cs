@@ -8,16 +8,16 @@ namespace Bhutawala_Traders_API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class SellsReturnController : ControllerBase
+    public class SalesReturnDetailController : ControllerBase
     {
         private readonly ApplicationDBContext _dbContext;
-        public SellsReturnController(ApplicationDBContext dBContext)
+        public SalesReturnDetailController(ApplicationDBContext dBContext)
         {
             _dbContext = dBContext;
         }
         [HttpPost]
         [Route("InsertSellsReturn")]
-        public async Task<IActionResult> AddSellsReturn(SalesReturn salesReturns, int InvoiceId, string PaymentMode, int StaffId)
+        public async Task<IActionResult> AddSalesReturn(SalesReturn salesReturns, int InvoiceId, string PaymentMode, int StaffId)
         {
             try
             {
@@ -63,7 +63,6 @@ namespace Bhutawala_Traders_API.Controllers
         {
             try
             {
-
                 var Data = await (from A in _dbContext.SellsReturnDetails
                                   join B in _dbContext.InvoiceMasters on A.InvoiceId equals B.InvoiceId
                                   join C in _dbContext.InvoiceDetails on A.InvoiceId equals C.InvoiceId
@@ -87,7 +86,6 @@ namespace Bhutawala_Traders_API.Controllers
                                       E.RefNo,
                                       E.ReturnDate
                                   }).ToListAsync();
-
                 return Ok(new { Status = "OK", Result = Data });
             }
             catch (Exception ex)
