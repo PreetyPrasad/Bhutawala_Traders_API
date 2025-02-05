@@ -67,7 +67,21 @@ namespace Bhutawala_Traders_API.Controllers
         {
             try
             {
-                var Data = await _dbContext.CreditNotes.ToArrayAsync();
+                var Data = await (from A in _dbContext.CreditNotes
+                                  join B in _dbContext.InvoiceMasters on A.InvoiceId equals B.InvoiceId
+                                  select new
+                                  {
+                                      A.CreditNoteId,
+                                      A.NoteNo,
+                                      A.InvoiceId,
+                                      A.Amount, 
+                                      A.NoteDate,
+                                      A.StaffId,
+                                      B.InvoiceDate,
+                                      B.InvoiceNo,
+                                      B.GST,
+                                      B.Total
+                                  }).ToListAsync();
                 return Ok(new { Status = "OK", Result = Data });
             }
             catch (Exception ex)
@@ -81,7 +95,7 @@ namespace Bhutawala_Traders_API.Controllers
         {
             try
             {
-                var Data = await _dbContext.CreditNotes.Where(o => o.CreditNoteId == Id).FirstOrDefaultAsync();
+                var Data = await _dbContext.CreditNotes.Where(o => o.CreditNoteId == Id && !(_dbContext.ApplyCredits.Select(A=> A.CreditNoteId).Contains(o.CreditNoteId))).FirstOrDefaultAsync();
 
                 if (Data != null)
                 {

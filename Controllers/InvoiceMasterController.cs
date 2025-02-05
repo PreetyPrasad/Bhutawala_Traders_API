@@ -31,6 +31,26 @@ namespace Bhutawala_Traders_API.Controllers
                 {
                     _dbContext.InvoiceMasters.Add(invoiceMaster);
                     await _dbContext.SaveChangesAsync();
+
+                    var customerInstallments = invoiceMaster.installments;
+                    foreach (var installment in customerInstallments)
+                    {
+                        if (installment.Paymentmode == "Credit Note")
+                        {
+                            int CreditNoteId = Convert.ToInt32(installment.RefNo);
+                            var InvoiceId = _dbContext.InvoiceMasters.Max(o => o.InvoiceId);
+                            ApplyCredit AC = new ApplyCredit()
+                            {
+                                StaffId = invoiceMaster.StaffId,
+                                CreditNoteId = CreditNoteId,
+                                InvoiceId = InvoiceId,
+                                LogDate = DateTime.Now
+                            };
+
+                            _dbContext.ApplyCredits.Add(AC);
+                            await _dbContext.SaveChangesAsync();
+                        }
+                    }
                     return Ok(new { Status = "Ok", Result = "Successfully Saved" });
                 }
                 else

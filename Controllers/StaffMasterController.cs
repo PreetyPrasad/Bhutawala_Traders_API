@@ -21,15 +21,24 @@ namespace Bhutawala_Traders_API.Controllers
         {
             try
             {
-                if (!_dbContext.StaffMasters.Any(o => o.FullName == staffMaster.FullName))
+                var exist=await _dbContext.StaffMasters.ToListAsync();
+                List<string> errors = new List<string>();
+                if (exist.Any(o => o.ContactNo == staffMaster.ContactNo)) 
+                {
+                    errors.Add("Contact Number is already Exist");
+                }
+                if (exist.Any(o => o.Email == staffMaster.Email))
+                {
+                    errors.Add("Email is already Exist");
+                }
+                if (errors.Count == 0)
                 {
                     _dbContext.StaffMasters.Add(staffMaster);
-                    await _dbContext.SaveChangesAsync();
-                    return Ok(new { Status = "Ok", Result = "Successfully Saved" });
+                    return Ok(new { Status = "OK", Result = "Successfully Saved" });
                 }
-                else
+                else 
                 {
-                    return Ok(new { Status = "Fail", Result = "Already Exists" });
+                    return Ok(new { Status = "Fail", Result = errors });
                 }
             }
             catch (Exception ex)
@@ -44,20 +53,37 @@ namespace Bhutawala_Traders_API.Controllers
         {
             try
             {
-                if (!_dbContext.StaffMasters.Any(o => o.FullName == staffMaster.FullName ))
+                var existData = await _dbContext.StaffMasters.Where(o => o.StaffId != staffMaster.StaffId).ToListAsync();
+                List<string> errors = new List<string>();
+
+                if (existData.Any(o => o.ContactNo == staffMaster.ContactNo))
+                {
+                    errors.Add("Contact No. is Exists");
+                }
+
+               
+                if (staffMaster.Email != null)
+                {
+                    if (existData.Any(o => o.Email == staffMaster.Email))
+                    {
+                        errors.Add("Email is Exists");
+                    }
+                }
+
+                if (errors.Count == 0)
                 {
                     _dbContext.StaffMasters.Update(staffMaster);
                     await _dbContext.SaveChangesAsync();
-                    return Ok(new { Status = "OK", Result = "Successfully Saved" });
+                    return Ok(new { Status = "Ok", Result = "Successfully Saved" });
                 }
                 else
                 {
-                    return Ok(new { Status = "Fail", Result = "Already Exists" });
+                    return Ok(new { Status = "Fail", Result = errors });
                 }
             }
             catch (Exception ex)
             {
-                return Ok(new { Status = "Fail", Result = "Error: " + ex.Message });
+                return BadRequest(new { Status = "Fail", Result = ex.Message });
             }
         }
 
