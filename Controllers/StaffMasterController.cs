@@ -1,5 +1,6 @@
 ﻿using Bhutawala_Traders_API.ApplicationContext;
 using Bhutawala_Traders_API.Models;
+using Bhutawala_Traders_API.Repositories;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -22,6 +23,7 @@ namespace Bhutawala_Traders_API.Controllers
             try
             {
                 var exist=await _dbContext.StaffMasters.ToListAsync();
+
                 List<string> errors = new List<string>();
                 if (exist.Any(o => o.ContactNo == staffMaster.ContactNo)) 
                 {
@@ -33,7 +35,16 @@ namespace Bhutawala_Traders_API.Controllers
                 }
                 if (errors.Count == 0)
                 {
+                    AutoGenratePasswd autoGenratePasswd = new AutoGenratePasswd();
+                    var passwd = autoGenratePasswd.Autopasswd();
+                    htmlFormater htmlFormater = new htmlFormater();
+                    AESCrypto aESCrypto = new AESCrypto();
+                    EmailSender emailSender = new EmailSender();
+                    var htmlFormateString = htmlFormater.createAccountFormate(staffMaster.FullName, staffMaster.ContactNo, passwd);
+                    staffMaster.Password = aESCrypto.Encrypt(passwd);
                     _dbContext.StaffMasters.Add(staffMaster);
+                    await _dbContext.SaveChangesAsync();
+                    emailSender.SendEmail(staffMaster.Email, "Create Account", htmlFormateString);
                     return Ok(new { Status = "OK", Result = "Successfully Saved" });
                 }
                 else 
@@ -61,7 +72,6 @@ namespace Bhutawala_Traders_API.Controllers
                     errors.Add("Contact No. is Exists");
                 }
 
-               
                 if (staffMaster.Email != null)
                 {
                     if (existData.Any(o => o.Email == staffMaster.Email))
@@ -72,15 +82,25 @@ namespace Bhutawala_Traders_API.Controllers
 
                 if (errors.Count == 0)
                 {
-                    _dbContext.StaffMasters.Update(staffMaster);
-                    await _dbContext.SaveChangesAsync();
-                    return Ok(new { Status = "Ok", Result = "Successfully Saved" });
+                    var existDetail = await _dbContext.StaffMasters.FindAsync(staffMaster.StaffId);
+                    if (existData != null)
+                    {
+                        staffMaster.Password = staffMaster.Password;
+                        _dbContext.StaffMasters.Update(staffMaster);
+                        await _dbContext.SaveChangesAsync();
+                        return Ok(new { Status = "OK", Result = "Update Successfully Saved" });
+                    }
+                    else
+                    {
+                        return Ok(new { Status = "Fail", Result = "Not Found" });
+                    }
                 }
                 else
                 {
                     return Ok(new { Status = "Fail", Result = errors });
                 }
             }
+
             catch (Exception ex)
             {
                 return BadRequest(new { Status = "Fail", Result = ex.Message });
@@ -148,6 +168,37 @@ namespace Bhutawala_Traders_API.Controllers
                 return Ok(new { Status = "Fail", Result = "Error: " + ex.Message });
             }
         }
+
+        [HttpPost]
+        [Route("ForgotPasswd")]
+        public async Task<IActionResult> ForgotPasswd(string UserName)
+        {
+            try
+            {
+                var exisData = await _dbContext.StaffMasters.Where(o => o.ContactNo == UserName).FirstOrDefaultAsync();
+                if (exisData != null)
+                {
+
+                    htmlFormater htmlFormater = new htmlFormater();
+                    AESCrypto aESCrypto = new AESCrypto();
+                    EmailSender emailSender = new EmailSender();
+                    var htmlFormateString = htmlFormater.forgotPasswordFormate(exisData.FullName, exisData.ContactNo, aESCrypto.Decrypt(exisData.Password));
+                    emailSender.SendEmail(exisData.Email, "Create Account", htmlFormateString);
+                    return Ok(new { Status = "OK", Result = "Sent Successfully" });
+                }
+                else
+                {
+                    return Ok(new { Status = "Fail", Result = "Not Found" });
+                }
+
+            }
+            catch (Exception ex)
+            {
+                return Ok(new { Status = "Fail", Result = "Error: " + ex.Message });
+            }
+        }
+
+
 
         [HttpPost]
         [Route("ChangePassword")]
