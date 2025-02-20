@@ -9,8 +9,8 @@ namespace Bhutawala_Traders_API.Repositories
         {
             try
             {
-                string senderEmail = "patelzainab541@gmail.com";  // Your Gmail ID
-                string senderPassword = "gzch xfnh bnpu bbdz"; // Use App Password, NOT your Gmail password
+                string senderEmail = "bhutawalatraders@gmail.com";  // Your Gmail ID
+                string senderPassword = "dppp rlic eokp eotu"; // Use App Password, NOT your Gmail password
 
                 MailMessage mail = new MailMessage();
                 mail.From = new MailAddress(senderEmail);

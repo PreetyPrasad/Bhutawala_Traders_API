@@ -175,7 +175,7 @@ namespace Bhutawala_Traders_API.Controllers
         {
             try
             {
-                var exisData = await _dbContext.StaffMasters.Where(o => o.ContactNo == UserName).FirstOrDefaultAsync();
+                var exisData = await _dbContext.StaffMasters.Where(o => o.FullName == UserName).FirstOrDefaultAsync();
                 if (exisData != null)
                 {
 

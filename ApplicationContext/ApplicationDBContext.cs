@@ -26,5 +26,6 @@ namespace Bhutawala_Traders_API.ApplicationContext
         public DbSet<SalesReturnDetails> SellsReturnDetails { get; set; }
         public DbSet<TransactionYearMaster>TransactionYearMasters { get; set; }
         public DbSet<SalesReturn> SalesReturns { get; set; }
+        public DbSet<Admin>Admins { get; set; }
     }
 }
