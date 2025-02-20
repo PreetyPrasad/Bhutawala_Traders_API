@@ -93,7 +93,7 @@
 
                                         <div class='footer'>
                                             <p>Need help? Contact us at <a href='mailto:support@yourwebsite.com'>support@yourwebsite.com</a></p>
-                                            <p>© 2025 Your Company. All rights reserved.</p>
+                                            <p>© 2025 Bhutawala Traders. All rights reserved.</p>
                                         </div>
                                     </div>
                                 </body>
