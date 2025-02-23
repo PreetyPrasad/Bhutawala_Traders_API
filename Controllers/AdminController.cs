@@ -116,7 +116,5 @@ namespace Bhutawala_Traders_API.Controllers
                 return Ok(new { Status = "Fail", Result = Exp.Message });
             }
         }
-
-
     }
 }

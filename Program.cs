@@ -4,12 +4,23 @@ using Microsoft.EntityFrameworkCore;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddDbContext<ApplicationDBContext>(o => o.UseSqlServer("Data Source=.;Initial Catalog=Bhutawal_Traders_API;Integrated Security=True;Trust Server Certificate=True"));
+builder.Services.AddDbContext<ApplicationDBContext>(o =>
+    o.UseSqlServer("Data Source=.;Initial Catalog=Bhutawal_Traders_API;Integrated Security=True;Trust Server Certificate=True"));
+
+// Configure CORS
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll",
+        builder =>
+        {
+            builder.AllowAnyOrigin()    // Allows requests from any domain
+                   .AllowAnyMethod()    // Allows all HTTP methods (GET, POST, PUT, DELETE, etc.)
+                   .AllowAnyHeader();   // Allows all headers
+        });
+});
 
 var app = builder.Build();
 
@@ -21,6 +32,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseCors("AllowAll"); // Apply the CORS policy
 
 app.UseAuthorization();
 

@@ -45,11 +45,11 @@ namespace Bhutawala_Traders_API.Controllers
             try
             {
                 var Data = _dbContext.Materials.Find(material.MaterialId);
-                if (Data!=null)
-                {
-                    Data.MaterialName = material.MaterialName;
 
-                    _dbContext.Materials.Update(Data);
+                if (Data != null)
+                {
+                    _dbContext.Entry(Data).State = EntityState.Detached;
+                    _dbContext.Update(material);
                     await _dbContext.SaveChangesAsync();
                     return Ok(new { Status = "OK", Result = "Successfully Saved" });
                 }
@@ -70,7 +70,7 @@ namespace Bhutawala_Traders_API.Controllers
         {
             try
             {
-                var Data = await _dbContext.Materials.ToListAsync();
+                var Data = await _dbContext.Materials.Include(o=> o.Category).ToListAsync();
                 return Ok(new { Status = "OK", Result = Data });
             }
             catch (Exception ex)
@@ -78,6 +78,7 @@ namespace Bhutawala_Traders_API.Controllers
                 return Ok(new { Status = "Fail", Result = "Error: " + ex.Message });
             }
         }
+
         [HttpGet]
         [Route("Details/{Id}")]
         public async Task<IActionResult> getDetails(int? Id)
