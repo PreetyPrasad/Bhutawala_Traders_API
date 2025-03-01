@@ -21,7 +21,7 @@ namespace Bhutawala_Traders_API.Models
         [Required, Range(0, double.MaxValue, ErrorMessage = "Gross Total must be non-negative.")]
         public double GrossTotal { get; set; }
 
-        [Required, Range(0, 100, ErrorMessage = "GST must be between 0 and 100%.")]
+        [Required, Range(0, double.MaxValue, ErrorMessage = "GST Amount must be non-negative.")]
         public double GST { get; set; }
 
         [StringLength(50, ErrorMessage = "GST Type cannot exceed 50 characters.")]

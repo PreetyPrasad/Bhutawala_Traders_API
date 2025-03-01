@@ -20,6 +20,11 @@ namespace Bhutawala_Traders_API.Models
         public virtual StaffMaster? StaffMaster { get; set; }
 
 
+        [ForeignKey(nameof(TransactionYearMaster))]
+        public int? TransactionYearId { get; set; }
+        public virtual TransactionYearMaster? TransactionYearMaster { get; set; }
+
+
         [Required(ErrorMessage = "Invoice Number is required.")]
         public int? InvoiceNo { get; set; }
 
@@ -48,9 +53,6 @@ namespace Bhutawala_Traders_API.Models
         [RegularExpression(@"^\d{15}$", ErrorMessage = "GSTIN must be exactly 15 characters.")]
         public string? GSTIN { get; set; }
 
-        [ForeignKey(nameof(TransactionYearMaster))]
-        public int? TransactionYearId { get; set; }
-        public virtual TransactionYearMaster? TransactionYearMaster { get; set; }
         public ICollection<InvoiceDetail> InvoiceDetails { get; set; }
         public ICollection<CustomerInstallment> installments { get; set; }
     }

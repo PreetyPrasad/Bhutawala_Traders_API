@@ -44,7 +44,7 @@ namespace Bhutawala_Traders_API.Controllers
             {
                 try
                 {
-                    if (!_dbContext.TransactionYearMasters.Any(o => o.TransactionYearId == transactionYearMaster.TransactionYearId))
+                    if (!_dbContext.TransactionYearMasters.Any(o => o.TransactionYearId != transactionYearMaster.TransactionYearId && o.YearName == transactionYearMaster .YearName ))
                     {
                         _dbContext.TransactionYearMasters.Update(transactionYearMaster);
                         await _dbContext.SaveChangesAsync();

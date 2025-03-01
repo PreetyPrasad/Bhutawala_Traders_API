@@ -45,7 +45,7 @@ namespace Bhutawala_Traders_API.Controllers
             }
         }
 
-        [HttpPut]
+        [HttpPost]
         [Route("Edit")]
         public async Task<IActionResult> EditPurchaseMaster(PurchaseMaster purchaseMaster)
         {

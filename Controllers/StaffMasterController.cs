@@ -58,7 +58,7 @@ namespace Bhutawala_Traders_API.Controllers
             }
         }
 
-        [HttpPut]
+        [HttpPost]
         [Route("Edit")]
         public async Task<IActionResult> EditStaffMaster(StaffMaster staffMaster)
         {

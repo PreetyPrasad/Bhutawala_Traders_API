@@ -32,10 +32,9 @@ namespace Bhutawala_Traders_API.Models
             [Required, EmailAddress, RegularExpression(@"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$", ErrorMessage = "Invalid Email.")]
             public string Email { get; set; } = string.Empty;
 
-            [Required, MinLength(6), RegularExpression(@"^(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{6,}$",ErrorMessage = "Must have uppercase, number & special char.")]
+            //[MinLength(6), RegularExpression(@"^(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{6,}$",ErrorMessage = "Must have uppercase, number & special char.")]
             public string Password { get; set; } = string.Empty;
-
-            [Required]
+    
             public DateTime LogDate { get; set; } = DateTime.Now;
             [NotMapped]
             public string OldPassword {  get; set; }= string.Empty;
