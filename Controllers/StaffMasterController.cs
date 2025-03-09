@@ -58,54 +58,34 @@ namespace Bhutawala_Traders_API.Controllers
             }
         }
 
+
         [HttpPost]
         [Route("Edit")]
-        public async Task<IActionResult> EditStaffMaster(StaffMaster staffMaster)
+        public async Task<IActionResult> Edit(StaffMaster staffMaster)
         {
             try
             {
-                var existData = await _dbContext.StaffMasters.Where(o => o.StaffId != staffMaster.StaffId).ToListAsync();
-                List<string> errors = new List<string>();
+                var existingStaff = await _dbContext.StaffMasters
+                    .AsNoTracking() // ✅ Prevent Tracking Conflict
+                    .FirstOrDefaultAsync(x => x.StaffId == staffMaster.StaffId);
 
-                if (existData.Any(o => o.ContactNo == staffMaster.ContactNo))
+                if (existingStaff != null)
                 {
-                    errors.Add("Contact No. is Exists");
-                }
-
-                if (staffMaster.Email != null)
-                {
-                    if (existData.Any(o => o.Email == staffMaster.Email))
-                    {
-                        errors.Add("Email is Exists");
-                    }
-                }
-
-                if (errors.Count == 0)
-                {
-                    var existDetail = await _dbContext.StaffMasters.FindAsync(staffMaster.StaffId);
-                    if (existData != null)
-                    {
-                        staffMaster.Password = staffMaster.Password;
-                        _dbContext.StaffMasters.Update(staffMaster);
-                        await _dbContext.SaveChangesAsync();
-                        return Ok(new { Status = "OK", Result = "Update Successfully Saved" });
-                    }
-                    else
-                    {
-                        return Ok(new { Status = "Fail", Result = "Not Found" });
-                    }
+                    _dbContext.Entry(staffMaster).State = EntityState.Modified;
+                    await _dbContext.SaveChangesAsync();
+                    return Ok(new { status = "OK", message = "Updated Successfully." });
                 }
                 else
                 {
-                    return Ok(new { Status = "Fail", Result = errors });
+                    return BadRequest(new { status = "Error", message = "Staff not found." });
                 }
             }
-
             catch (Exception ex)
             {
-                return BadRequest(new { Status = "Fail", Result = ex.Message });
+                return BadRequest(new { status = "Error", message = ex.Message });
             }
         }
+
 
         [HttpGet]
         [Route("List")]

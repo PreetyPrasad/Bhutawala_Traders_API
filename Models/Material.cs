@@ -22,6 +22,9 @@ namespace Bhutawala_Traders_API.Models
         [Required, Range(0, double.MaxValue, ErrorMessage = "Quantity must be non-negative.")]
         public double Qty { get; set; }
 
+        [Required, Range(0, double.MaxValue, ErrorMessage = "Quantity must be non-negative.")]
+        public double Price { get; set; }
+
         [Range(0, double.MaxValue, ErrorMessage = "Net Quantity must be non-negative.")]
         public double Net_Qty { get; set; }
 

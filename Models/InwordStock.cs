@@ -13,9 +13,14 @@ namespace Bhutawala_Traders_API.Models
         public virtual Material? Material { get; set; }
 
 
-        [ForeignKey(nameof(PurchaseMaster)) ]
+        [ForeignKey(nameof(PurchaseMaster))]
         public int? PurchaseId { get; set; }
         public virtual PurchaseMaster? PurchaseMaster { get; set; }
+
+        [ForeignKey(nameof(StaffMaster))]
+        [Required(ErrorMessage = "Staff ID is required.")]
+        public int StaffId { get; set; }
+        public virtual StaffMaster? StaffMaster { get; set; }
 
 
         [Required, Range(0.01, double.MaxValue, ErrorMessage = "Quantity must be greater than zero.")]
@@ -33,7 +38,7 @@ namespace Bhutawala_Traders_API.Models
         [StringLength(200, ErrorMessage = "Note cannot exceed 200 characters.")]
         public string? Note { get; set; }
 
-        [Required(ErrorMessage = "Staff ID is required.")]
-        public int StaffId { get; set; }
-    }
+        
+
+    } 
 }

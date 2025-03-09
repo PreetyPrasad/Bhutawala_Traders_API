@@ -61,7 +61,26 @@ namespace Bhutawala_Traders_API.Controllers
                 }
             }
 
-            [HttpGet]
+
+        [HttpPost]
+        [Route("setCurrentYear/{Id}")]
+        public async Task<IActionResult> setCurrentYear(int Id)
+        {
+            try
+            {
+                var Data = await _dbContext.TransactionYearMasters.ToListAsync();
+                Data.ForEach(o=> o.CurrentYear = (o.TransactionYearId == Id ? "True" : "False"));
+
+                await _dbContext.SaveChangesAsync();
+                return Ok(new { Status = "OK", Result = "Save Successfully" });
+            }
+            catch (Exception ex)
+            {
+                return Ok(new { Status = "Fail", Result = "Error: " + ex.Message });
+            }
+        }
+
+        [HttpGet]
             [Route("List")]
             public async Task<IActionResult> getTransactionRecord()
             {

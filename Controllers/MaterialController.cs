@@ -21,7 +21,7 @@ namespace Bhutawala_Traders_API.Controllers
         {
             try
             {
-                if (!_dbContext.Materials.Any(o => o.MaterialName == material.MaterialName))
+                if (!_dbContext.Materials.Any(o => o.MaterialName == material.MaterialName && o.Brand==material.Brand && o.Unit==material.Unit && o.Qty==material.Qty))
                 {
                     _dbContext.Materials.Add(material);
                     await _dbContext.SaveChangesAsync();

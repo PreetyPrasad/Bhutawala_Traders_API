@@ -5,6 +5,7 @@ using Bhutawala_Traders_API.Repositories;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Bhutawala_Traders_API.Controllers
 {
@@ -60,6 +61,15 @@ namespace Bhutawala_Traders_API.Controllers
         }
 
 
+        [HttpGet]
+        [Route("EncPasswd/{Passwd}")]
+        public IActionResult encPasswd(string Passwd)
+        {
+            AESCrypto aESCrypto = new AESCrypto();
+            return Ok(new { Password = aESCrypto.Encrypt(Passwd) });
+        }
+
+
         [HttpPost]
         [Route("updateAdmin")]
         public async Task<IActionResult> UpdateAdmin(Admin admin) 
@@ -93,20 +103,32 @@ namespace Bhutawala_Traders_API.Controllers
 
             try
             {
-                var existingAdmin = await _dbContext.Admins
-                                                    .Where(o => o.UserName == admin.UserName && o.Password == admin.Password )
-                                                    .Select(o=> new
-                                                    {
-                                                        o.UserName,
-                                                       o.AdminId
-                                                    }).FirstOrDefaultAsync();
-                if (existingAdmin != null)
+                AESCrypto aESCrypto = new AESCrypto();
+                if (_dbContext.Admins.Any(o => o.UserName == admin.UserName))
                 {
-                    return Ok(new { Status = "OK", Result = existingAdmin });
+                    var encPasswd = aESCrypto.Encrypt(admin.Password);
+
+                    var existingAdmin = await _dbContext.Admins
+                                                   .Where(o => o.UserName == admin.UserName && o.Password == encPasswd)
+                                                   .Select(o => new
+                                                   {
+                                                       o.UserName,
+                                                       o.AdminId
+                                                   }).FirstOrDefaultAsync();
+
+
+                    if (existingAdmin != null)
+                    {
+                        return Ok(new { status = "OK", result = existingAdmin });
+                    }
+                    else
+                    {
+                        return Ok(new { status = "Fail", result = "Wrong Username or Password" });
+                    }
                 }
                 else
                 {
-                    return Ok(new { Status = "Fail", Result = "Wrong Username or Password" });
+                    return Ok(new { status = "Fail", result = "User not found" });
                 }
             }
             catch (Exception Exp)
@@ -147,20 +169,20 @@ namespace Bhutawala_Traders_API.Controllers
             return Ok(new { Status = "OK", Result = data });
         }
 
-        [HttpPost]
-        [Route("ForgotPasswd")]
+        [HttpGet]
+        [Route("ForgotPasswd/{UserName}")]
         public async Task<IActionResult> ForgotPasswd(string UserName)
         {
             try
             {
-                var exisData = await _dbContext.StaffMasters.Where(o => o.FullName == UserName).FirstOrDefaultAsync();
+                var exisData = await _dbContext.Admins.Where(o => o.UserName == UserName).FirstOrDefaultAsync();
                 if (exisData != null)
                 {
 
                     htmlFormater htmlFormater = new htmlFormater();
                     AESCrypto aESCrypto = new AESCrypto();
                     EmailSender emailSender = new EmailSender();
-                    var htmlFormateString = htmlFormater.forgotPasswordFormate(exisData.FullName, exisData.ContactNo, aESCrypto.Decrypt(exisData.Password));
+                    var htmlFormateString = htmlFormater.forgotPasswordFormate(exisData.UserName, exisData.ContactNo, aESCrypto.Decrypt(exisData.Password));
                     emailSender.SendEmail(exisData.Email, "Create Account", htmlFormateString);
                     return Ok(new { Status = "OK", Result = "Sent Successfully" });
                 }
@@ -180,17 +202,21 @@ namespace Bhutawala_Traders_API.Controllers
 
         [HttpPost]
         [Route("ChangePassword")]
-        public async Task<IActionResult> changePassword(StaffMaster Model)
+        public async Task<IActionResult> changePassword(Admin Model)
         {
             try
             {
-                var ExistData = await _dbContext.StaffMasters.FindAsync(Model.StaffId);
+                var ExistData = await _dbContext.Admins.FindAsync(Model.AdminId);
+                AESCrypto aESCrypto = new AESCrypto();
+                var encPasswd = aESCrypto.Encrypt(Model.oldPasswd);
+
+
                 if (ExistData != null)
                 {
-                    if (ExistData.Password == Model.OldPassword)
+                    if (ExistData.Password == encPasswd)
                     {
-                        ExistData.Password = Model.NewPassword;
-                        _dbContext.StaffMasters.Update(ExistData);
+                        ExistData.Password =aESCrypto.Encrypt(Model.newPasswd);
+                        _dbContext.Admins.Update(ExistData);
                         await _dbContext.SaveChangesAsync();
                         return Ok(new { Status = "Ok", Result = "Password Change Successfully" });
                     }

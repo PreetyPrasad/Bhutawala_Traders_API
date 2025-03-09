@@ -44,7 +44,20 @@ namespace Bhutawala_Traders_API.Controllers
         {
             try
             {
-                var Data = await _dbContext.PurchasePayments.ToArrayAsync();
+                var Data = await (from A in _dbContext.PurchaseMasters
+                                  join B in _dbContext.Suppliers on A.SupplierId equals B.SupplierId
+                                  select new
+                                  {
+                                      A.PurchaseId,
+                                      A.Total,
+                                      Paid = (_dbContext.PurchasePayments.DefaultIfEmpty().Where(o=> o.PurchaseId == A.PurchaseId).Sum(o=> (o != null ? o.Amount : 0))),
+                                      B.BusinessName,
+                                      A.SupplierId,
+                                      A.GST_Type,
+                                      A.PurchaseDate,
+                                      A.BillNo,
+                                      A.NoticePeriod
+                                  }).ToListAsync();
                 return Ok(new { Status = "OK", Result = Data });
             }
             catch (Exception ex)
@@ -58,7 +71,12 @@ namespace Bhutawala_Traders_API.Controllers
         {
             try
             {
-                var Data = await _dbContext.PurchasePayments.Where(o => o.PurchaseId == Id).FirstOrDefaultAsync();
+                var Data = await _dbContext.PurchasePayments.Where(o => o.PurchaseId == Id).Select(o => new
+                {
+                    o.PurchaseId,
+                    Paid = _dbContext.PurchasePayments.DefaultIfEmpty().Where(A => A.PurchaseId == o.PurchaseId).Sum(o => (o != null ? o.Amount : 0)),
+
+                }).FirstOrDefaultAsync();
 
                 if (Data != null)
                 {
