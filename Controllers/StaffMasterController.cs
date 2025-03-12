@@ -22,10 +22,10 @@ namespace Bhutawala_Traders_API.Controllers
         {
             try
             {
-                var exist=await _dbContext.StaffMasters.ToListAsync();
+                var exist = await _dbContext.StaffMasters.ToListAsync();
 
                 List<string> errors = new List<string>();
-                if (exist.Any(o => o.ContactNo == staffMaster.ContactNo)) 
+                if (exist.Any(o => o.ContactNo == staffMaster.ContactNo))
                 {
                     errors.Add("Contact Number is already Exist");
                 }
@@ -47,7 +47,7 @@ namespace Bhutawala_Traders_API.Controllers
                     emailSender.SendEmail(staffMaster.Email, "Create Account", htmlFormateString);
                     return Ok(new { Status = "OK", Result = "Successfully Saved" });
                 }
-                else 
+                else
                 {
                     return Ok(new { Status = "Fail", Result = errors });
                 }
@@ -60,14 +60,60 @@ namespace Bhutawala_Traders_API.Controllers
 
 
         [HttpPost]
+        [Route("AuthenticationStaff")]
+        public async Task<IActionResult> Authentication(Authentication staff)
+        {
+            try
+            {
+                AESCrypto aESCrypto = new AESCrypto();
+
+                // ✅ Check if FullName exists
+                var existingStaff = await _dbContext.StaffMasters
+                                                    .Where(o => o.FullName == staff.UserName)
+                                                    .FirstOrDefaultAsync();
+
+                if (existingStaff != null)
+                {
+                    // ✅ Decrypt the password from the database
+                    var decryptedPassword = aESCrypto.Decrypt(existingStaff.Password);
+
+                    // ✅ Compare decrypted password with entered password
+                    if (decryptedPassword == staff.Password)
+                    {
+                        var data = new
+                        {
+                            existingStaff.FullName,
+                            existingStaff.StaffId,
+                            existingStaff.Category
+                        };
+
+                        return Ok(new { status = "OK", result = data });
+                    }
+                    else
+                    {
+                        return Ok(new { status = "Fail", result = "Wrong Password" });
+                    }
+                }
+                else
+                {
+                    return Ok(new { status = "Fail", result = "User not found" });
+                }
+            }
+            catch (Exception Exp)
+            {
+                return Ok(new { Status = "Fail", Result = Exp.Message });
+            }
+        }
+
+
+        [HttpPost]
         [Route("Edit")]
         public async Task<IActionResult> Edit(StaffMaster staffMaster)
         {
             try
             {
-                var existingStaff = await _dbContext.StaffMasters
-                    .AsNoTracking() // ✅ Prevent Tracking Conflict
-                    .FirstOrDefaultAsync(x => x.StaffId == staffMaster.StaffId);
+                var existingStaff = await _dbContext.StaffMasters.AsNoTracking() // ✅ Prevent Tracking Conflict
+                                                                 .FirstOrDefaultAsync(x => x.StaffId == staffMaster.StaffId);
 
                 if (existingStaff != null)
                 {
@@ -151,11 +197,11 @@ namespace Bhutawala_Traders_API.Controllers
 
         [HttpPost]
         [Route("ForgotPasswd")]
-        public async Task<IActionResult> ForgotPasswd(string UserName)
+        public async Task<IActionResult> ForgotPasswd(string FullName)
         {
             try
             {
-                var exisData = await _dbContext.StaffMasters.Where(o => o.FullName == UserName).FirstOrDefaultAsync();
+                var exisData = await _dbContext.StaffMasters.Where(o => o.FullName == FullName).FirstOrDefaultAsync();
                 if (exisData != null)
                 {
 
@@ -178,7 +224,21 @@ namespace Bhutawala_Traders_API.Controllers
             }
         }
 
+        [HttpGet]
+        [Route("EncPasswd/{Passwd}")]
+        public IActionResult encPasswd(string Passwd)
+        {
+            AESCrypto aESCrypto = new AESCrypto();
+            return Ok(new { Password = aESCrypto.Encrypt(Passwd) });
+        }
 
+        [HttpGet]
+        [Route("DycPasswd/{Passwd}")]
+        public IActionResult DycPasswd(string Passwd)
+        {
+            AESCrypto aESCrypto = new AESCrypto();
+            return Ok(new { Password = aESCrypto.Decrypt(Passwd) });
+        }
 
         [HttpPost]
         [Route("ChangePassword")]
@@ -207,7 +267,7 @@ namespace Bhutawala_Traders_API.Controllers
                     return Ok(new { Status = "Fail", Result = "Not Found" });
                 }
             }
-            catch (Exception ex) 
+            catch (Exception ex)
             {
                 return Ok(new { Status = "Fail", Result = "Error: " + ex.Message });
 

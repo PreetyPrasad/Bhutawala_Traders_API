@@ -26,6 +26,7 @@ namespace Bhutawala_Traders_API.Models
 
 
         [Required(ErrorMessage = "Invoice Number is required.")]
+        
         public int? InvoiceNo { get; set; }
 
         [Required, StringLength(100, ErrorMessage = "Customer Name cannot exceed 100 characters.")]
@@ -37,7 +38,7 @@ namespace Bhutawala_Traders_API.Models
         [Required, Range(0, double.MaxValue, ErrorMessage = "Total Gross must be non-negative.")]
         public double TotalGross { get; set; }
 
-        [Required, Range(0, 100, ErrorMessage = "GST must be between 0 and 100%.")]
+       
         public double GST { get; set; }
 
         [StringLength(50, ErrorMessage = "GST Type cannot exceed 50 characters.")]
@@ -50,7 +51,6 @@ namespace Bhutawala_Traders_API.Models
         public DateTime InvoiceDate { get; set; } = DateTime.Now;
         public DateTime NoticePeriod { get; set; } = DateTime.Now;
 
-        [RegularExpression(@"^\d{15}$", ErrorMessage = "GSTIN must be exactly 15 characters.")]
         public string? GSTIN { get; set; }
 
         public ICollection<InvoiceDetail> InvoiceDetails { get; set; }

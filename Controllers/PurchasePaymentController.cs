@@ -65,18 +65,38 @@ namespace Bhutawala_Traders_API.Controllers
                 return Ok(new { Status = "Fail", Result = "Error: " + ex.Message });
             }
         }
+
+        [HttpGet]
+        [Route("PurchasePayments/{PurchaseId}")]
+        public async Task<IActionResult> getPurchasePayments(int PurchaseId)
+        {
+            try
+            {
+                var Data = await _dbContext.PurchasePayments.Where(o => o.PurchaseId == PurchaseId).ToListAsync();
+                return Ok(new { Status = "OK", Result = Data });
+            }
+            catch (Exception ex)
+            {
+                return Ok(new { Status = "Fail", Result = "Error: " + ex.Message });
+            }
+        }
+
         [HttpGet]
         [Route("Details/{Id}")]
         public async Task<IActionResult> getDetails(int? Id)
         {
             try
             {
-                var Data = await _dbContext.PurchasePayments.Where(o => o.PurchaseId == Id).Select(o => new
-                {
-                    o.PurchaseId,
-                    Paid = _dbContext.PurchasePayments.DefaultIfEmpty().Where(A => A.PurchaseId == o.PurchaseId).Sum(o => (o != null ? o.Amount : 0)),
 
-                }).FirstOrDefaultAsync();
+                var Data = await (from A in _dbContext.PurchaseMasters
+                                  join B in _dbContext.Suppliers on A.SupplierId equals B.SupplierId
+                                  select new
+                                  {
+                                      A.PurchaseId,
+                                      Paid = _dbContext.PurchasePayments.DefaultIfEmpty().Where(A => A.PurchaseId == A.PurchaseId).Sum(o => (o != null ? o.Amount : 0)),
+                                      A.GST,
+                                      B.BusinessName,
+                                  }).FirstOrDefaultAsync();
 
                 if (Data != null)
                 {

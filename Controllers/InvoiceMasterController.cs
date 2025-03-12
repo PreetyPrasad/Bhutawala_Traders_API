@@ -3,6 +3,7 @@ using Bhutawala_Traders_API.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Bhutawala_Traders_API.Controllers
 {
@@ -15,54 +16,66 @@ namespace Bhutawala_Traders_API.Controllers
         {
             _dbContext = dBContext;
         }
+
         [HttpPost]
         [Route("Save")]
         public async Task<IActionResult> AddInvoiceMaster(InvoiceMaster invoiceMaster)
         {
             try
             {
-                var invoiceNo = (_dbContext.InvoiceMasters
-                                           .Where(o=> o.TransactionYearId == invoiceMaster.TransactionYearId)
-                                           .DefaultIfEmpty()
-                                           .Max(o=> (o != null ? o.InvoiceNo : 0)) + 1);
+                // Validate TransactionYearId
+                invoiceMaster.TransactionYearId = await _dbContext.TransactionYearMasters
+                    .Where(o => o.CurrentYear == "True")
+                    .Select(o => o.TransactionYearId)
+                    .FirstOrDefaultAsync();
 
-                invoiceMaster.InvoiceNo = invoiceNo;
-                if (!_dbContext.InvoiceMasters.Any(o => o.InvoiceId == invoiceMaster.InvoiceId))
+                if (invoiceMaster.TransactionYearId == 0)
                 {
-                    _dbContext.InvoiceMasters.Add(invoiceMaster);
-                    await _dbContext.SaveChangesAsync();
+                    return BadRequest(new { Status = "Fail", Result = "Transaction Year ID not found." });
+                }
 
-                    var customerInstallments = invoiceMaster.installments;
-                    foreach (var installment in customerInstallments)
+                _dbContext.InvoiceMasters.Add(invoiceMaster);
+                await _dbContext.SaveChangesAsync();
+
+                // Check installments
+                var customerInstallments = invoiceMaster.installments;
+                foreach (var installment in customerInstallments)
+                {
+                    if (installment.Paymentmode == "Credit Note")
                     {
-                        if (installment.Paymentmode == "Credit Note")
+                        if (!int.TryParse(installment.RefNo, out int CreditNoteId))
                         {
-                            int CreditNoteId = Convert.ToInt32(installment.RefNo);
-                            var InvoiceId = _dbContext.InvoiceMasters.Max(o => o.InvoiceId);
-                            ApplyCredit AC = new ApplyCredit()
-                            {
-                                StaffId = invoiceMaster.StaffId,
-                                CreditNoteId = CreditNoteId,
-                                InvoiceId = InvoiceId,
-                                LogDate = DateTime.Now
-                            };
-
-                            _dbContext.ApplyCredits.Add(AC);
-                            await _dbContext.SaveChangesAsync();
+                            return BadRequest(new { Status = "Fail", Result = "Invalid Credit Note Reference Number." });
                         }
+
+                        var InvoiceId = invoiceMaster.InvoiceId; // Use the assigned InvoiceId
+                        ApplyCredit AC = new ApplyCredit()
+                        {
+                            StaffId = invoiceMaster.StaffId,
+                            CreditNoteId = CreditNoteId,
+                            InvoiceId = InvoiceId,
+                            LogDate = DateTime.Now
+                        };
+
+                        _dbContext.ApplyCredits.Add(AC);
+                        await _dbContext.SaveChangesAsync();
                     }
-                    return Ok(new { Status = "Ok", Result = "Successfully Saved" });
                 }
-                else
-                {
-                    return Ok(new { Status = "Fail", Result = "Already Exists" });
-                }
+
+                return Ok(new { Status = "Ok", Result = "Successfully Saved" });
+            }
+            catch (DbUpdateException dbEx)
+            {
+                // Capture database-specific error
+                return BadRequest(new { Status = "Fail", Result = "Database Error: " + dbEx.InnerException?.Message });
             }
             catch (Exception ex)
             {
-                return BadRequest(new { Status = "Fail", Result = ex.Message });
+                // Capture general error
+                return BadRequest(new { Status = "Fail", Result = "Error: " + ex.Message });
             }
         }
+
 
         [HttpGet]
         [Route("List/{FinancialYear}")]
@@ -78,6 +91,29 @@ namespace Bhutawala_Traders_API.Controllers
                 return Ok(new { Status = "Fail", Result = "Error: " + ex.Message });
             }
         }
+
+        [HttpGet]
+        [Route("MaxNo")]
+        public async Task<IActionResult> GetNextInvoiceNo()
+        {
+            try
+            {
+                // Fetch the max InvoiceNo for the given Id (e.g., SupplierId, PurchaseId, etc.)
+                var maxInvoice = await _dbContext.InvoiceMasters
+                                               .Where(p => p.TransactionYearId == _dbContext.TransactionYearMasters.Where(o=> o.CurrentYear == "True").Select(o=> o.TransactionYearId).FirstOrDefault()) 
+                                               .MaxAsync(p => (int?)p.InvoiceNo) ?? 0;
+
+                // Auto-increment the InvoiceNo
+                int nextInvoiceNo = maxInvoice + 1;
+                return Ok(new { Status = "OK", Result = nextInvoiceNo });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
+
 
         [HttpGet]
         [Route("Details/{Id}")]
