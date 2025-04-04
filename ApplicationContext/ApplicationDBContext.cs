@@ -27,5 +27,7 @@ namespace Bhutawala_Traders_API.ApplicationContext
         public DbSet<TransactionYearMaster>TransactionYearMasters { get; set; }
         public DbSet<SalesReturn> SalesReturns { get; set; }
         public DbSet<Admin>Admins { get; set; }
+        public DbSet<OutwordMaster> OutwardMasters { get; set; }
+        public DbSet <OutwordItem> OutwordItems { get; set; }
     }
 }

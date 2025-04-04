@@ -8,24 +8,24 @@ namespace Bhutawala_Traders_API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class CreditNoteController : ControllerBase
+    public class OutwordMasterController : ControllerBase
     {
         private readonly ApplicationDBContext _dbContext;
-        public CreditNoteController(ApplicationDBContext dBContext)
+        public OutwordMasterController(ApplicationDBContext dBContext)
         {
             _dbContext = dBContext;
         }
 
         [HttpPost]
         [Route("Save")]
-        public async Task<IActionResult> Add(CreditNote creditNote)
+        public async Task<IActionResult> AddOutwordMaster(OutwordMaster outwordMaster)
         {
             try
             {
 
-                if (!_dbContext.CreditNotes.Any(o => o.CreditNoteId == creditNote.CreditNoteId))
+                if (!_dbContext.OutwardMasters.Any(o => o.OutwordId == outwordMaster.OutwordId))
                 {
-                    _dbContext.CreditNotes.Add(creditNote);
+                    _dbContext.OutwardMasters.Add(outwordMaster);
                     await _dbContext.SaveChangesAsync();
                     return Ok(new { Status = "Ok", Result = "Successfully Saved" });
                 }
@@ -36,19 +36,20 @@ namespace Bhutawala_Traders_API.Controllers
             }
             catch (Exception ex)
             {
+
                 return BadRequest(new { Status = "Fail", Result = ex.Message });
             }
         }
 
         [HttpPost]
         [Route("Edit")]
-        public async Task<IActionResult> EditCreditNote(CreditNote creditNote)
+        public async Task<IActionResult> EditOutwordItem(OutwordMaster outwordMaster)
         {
             try
             {
-                if (!_dbContext.CreditNotes.Any(o => o.CreditNoteId == creditNote.CreditNoteId))
+                if (_dbContext.OutwardMasters.Any(o => o.OutwordId != outwordMaster.OutwordId && o.Givento == outwordMaster.Givento))
                 {
-                    _dbContext.CreditNotes.Update(creditNote);
+                    _dbContext.OutwardMasters.Update(outwordMaster);
                     await _dbContext.SaveChangesAsync();
                     return Ok(new { Status = "OK", Result = "Successfully Saved" });
                 }
@@ -62,28 +63,24 @@ namespace Bhutawala_Traders_API.Controllers
                 return Ok(new { Status = "Fail", Result = "Error: " + ex.Message });
             }
         }
-
         [HttpGet]
         [Route("List")]
-        public async Task<IActionResult> getCreditNote()
+        public async Task<IActionResult> getOutwordMaster()
         {
             try
             {
-                var Data = await (from A in _dbContext.CreditNotes
-                                  join B in _dbContext.InvoiceMasters on A.InvoiceId equals B.InvoiceId
+                var Data = await (from A in _dbContext.OutwardMasters
+                                  join B in _dbContext.StaffMasters on A.StaffId equals B.StaffId
                                   select new
                                   {
-                                      A.CreditNoteId,
-                                      A.NoteNo,
-                                      A.InvoiceId,
-                                      A.Amount, 
-                                      A.NoteDate,
+                                      A.OutwordId,
                                       A.StaffId,
-                                      B.InvoiceDate,
-                                      B.InvoiceNo,
-                                      B.GST,
-                                      B.Total
+                                      A.Reason,
+                                      A.Givento,
+                                      A.ContactNo,
+                                      A.OutwordDate
                                   }).ToListAsync();
+
                 return Ok(new { Status = "OK", Result = Data });
             }
             catch (Exception ex)
@@ -93,11 +90,11 @@ namespace Bhutawala_Traders_API.Controllers
         }
         [HttpGet]
         [Route("Details/{Id}")]
-        public async Task<IActionResult> getDetails(int? Id)
+        public async Task<IActionResult> getOutwordMaster(int? Id)
         {
             try
             {
-                var Data = await _dbContext.CreditNotes.Where(o => o.CreditNoteId == Id && !(_dbContext.ApplyCredits.Select(A=> A.CreditNoteId).Contains(o.CreditNoteId))).FirstOrDefaultAsync();
+                var Data = await _dbContext.OutwardMasters.Where(o => o.OutwordId == Id).FirstOrDefaultAsync();
 
                 if (Data != null)
                 {
@@ -116,48 +113,17 @@ namespace Bhutawala_Traders_API.Controllers
 
         [HttpGet]
         [Route("Remove/{Id}")]
-        public async Task<IActionResult> deleteCreditNote(int? Id)
+        public async Task<IActionResult> deleteOutwordMaster(int? Id)
         {
             try
             {
-                var Data = await _dbContext.CreditNotes.Where(o => o.CreditNoteId == Id).FirstOrDefaultAsync();
+                var Data = await _dbContext.OutwardMasters.Where(o => o.OutwordId == Id).FirstOrDefaultAsync();
 
                 if (Data != null)
                 {
-                    _dbContext.CreditNotes.Remove(Data);
+                    _dbContext.OutwardMasters.Remove(Data);
                     await _dbContext.SaveChangesAsync();
                     return Ok(new { Status = "OK", Result = "Deleted Successfully" });
-                }
-                else
-                {
-                    return Ok(new { Status = "Fail", Result = "Not Found" });
-                }
-            }
-            catch (Exception ex)
-            {
-                return Ok(new { Status = "Fail", Result = "Error: " + ex.Message });
-            }
-        }
-
-        [HttpGet]
-        [Route("Verify/{Id}")]
-        public async Task<IActionResult> Verify(int? Id)
-        {
-            try
-            {
-                var Data = await _dbContext.CreditNotes.Where(o => o.CreditNoteId == Id).FirstOrDefaultAsync();
-                if (Data != null)
-                {
-
-                    var appliedCreditNote = await _dbContext.ApplyCredits.Where(o => o.CreditNoteId == Id).FirstOrDefaultAsync();
-                    if (appliedCreditNote == null)
-                    {
-                        return Ok(new { Status = "OK", Result = Data });
-                    }
-                    else
-                    {
-                        return Ok(new { Status = "Fail", Result = "Already Applied" });
-                    }
                 }
                 else
                 {

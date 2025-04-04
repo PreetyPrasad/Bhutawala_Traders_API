@@ -44,6 +44,9 @@ namespace Bhutawala_Traders_API.Models
         [StringLength(50, ErrorMessage = "GST Type cannot exceed 50 characters.")]
         public string? GST_TYPE { get; set; }
 
+        [EmailAddress, RegularExpression(@"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$", ErrorMessage = "Invalid Email.")]
+        public string? Email { get; set; }
+
         [Required, Range(0, double.MaxValue, ErrorMessage = "Total must be non-negative.")]
         public double Total { get; set; }
 

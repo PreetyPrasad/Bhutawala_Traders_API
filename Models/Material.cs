@@ -12,11 +12,14 @@ namespace Bhutawala_Traders_API.Models
         public int? CategoryId { get; set; }
         public virtual Category? Category { get; set; }
 
+        [ForeignKey(nameof(StaffMaster))]
+        public int? StaffId { get; set; }
+        public virtual StaffMaster? StaffMaster { get; set; }
+
 
         [Required, StringLength(100, ErrorMessage = "Material Name cannot exceed 100 characters.")]
         public string? MaterialName { get; set; }
 
-        [Required, StringLength(50, ErrorMessage = "Unit cannot exceed 50 characters.")]
         public string Unit { get; set; } = string.Empty;
 
         [Required, Range(0, double.MaxValue, ErrorMessage = "Quantity must be non-negative.")]

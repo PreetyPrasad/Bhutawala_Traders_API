@@ -1,7 +1,123 @@
-﻿namespace Bhutawala_Traders_API.Repositories
+﻿using Bhutawala_Traders_API.Models;
+
+namespace Bhutawala_Traders_API.Repositories
 {
     public class htmlFormater
     {
+        //public string GenerateInvoiceText(InvoiceMaster invoice)
+        //{
+        //    string invoiceText = $"📜 *Invoice Receipt*\n\n" +
+        //                         $"🧾 *Invoice No:* {invoice.InvoiceNo}\n" +
+        //                         $"📅 *Date:* {invoice.InvoiceDate:dd-MM-yyyy}\n" +
+        //                         $"👤 *Customer:* {invoice.CustomerName}\n" +
+        //                         $"📞 *Contact:* {invoice.ContactNo}\n" +
+        //                         $"🆔 *GSTIN:* {invoice.GSTIN}\n" +
+        //                         $"💰 *Total Amount:* ₹{invoice.Total}\n" +
+        //                         $"✅ *Paid:* ₹{invoice.installments.Sum(i => i.Amount)}\n" +
+        //                         $"❌ *Due:* ₹{(invoice.Total - invoice.installments.Sum(i => i.Amount))}\n\n" +
+        //                         $"🛒 *Purchased Items:*\n";
+
+        //    foreach (var item in invoice.InvoiceDetails)
+        //    {
+        //        invoiceText += $"🔹 {item.MaterialName} - {item.Qty} x ₹{item.Rate} = ₹{item.Total}\n";
+        //    }
+
+        //    invoiceText += "\n💳 *Payments Received:*\n";
+
+        //    foreach (var payment in invoice.installments)
+        //    {
+        //        invoiceText += $"📌 {payment.Paymentmode} | Ref: {payment.RefNo} | ₹{payment.Amount}\n";
+        //    }
+
+        //    invoiceText += "\n🙏 *Thank you for your business!*\n";
+
+        //    return invoiceText;
+        //}
+
+        //public string GetWhatsAppMessageUrl(InvoiceMaster invoice)
+        //{
+        //    string phoneNumber = invoice.ContactNo.Replace(" ", "").Replace("-", "").Replace("+", ""); // Clean phone number
+        //    string message = Uri.EscapeDataString(GenerateInvoiceText(invoice)); // Encode message for URL
+        //    return $"https://wa.me/{phoneNumber}?text={message}";
+        //}
+
+        public string GenerateInvoiceHtml(InvoiceMaster invoice)
+        {
+            string invoiceHtml = $@"
+            <html>
+            <head>
+                <style>
+                    body {{ font-family: Arial, sans-serif; }}
+                    .invoice-container {{ width: 600px; margin: auto; padding: 20px; border: 1px solid #ddd; }}
+                    .header {{ text-align: center; font-size: 20px; font-weight: bold; }}
+                    .details-table, .items-table {{ width: 100%; border-collapse: collapse; margin-top: 10px; }}
+                    .details-table td, .items-table td, .items-table th {{ border: 1px solid #ddd; padding: 8px; }}
+                    .total-section {{ font-size: 18px; font-weight: bold; margin-top: 20px; }}
+                </style>
+            </head>
+            <body>
+                <div class='invoice-container'>
+                    <div class='header'>Invoice Receipt</div>
+                    <table class='details-table'>
+                        <tr><td><b>Invoice No:</b></td><td>{invoice.InvoiceNo}</td></tr>
+                        <tr><td><b>Date:</b></td><td>{invoice.InvoiceDate.ToString("dd-MM-yyyy")}</td></tr>
+                        <tr><td><b>Customer:</b></td><td>{invoice.CustomerName}</td></tr>
+                        <tr><td><b>Contact:</b></td><td>{invoice.ContactNo}</td></tr>
+                        <tr><td><b>GSTIN:</b></td><td>{invoice.GSTIN}</td></tr>
+                        <tr><td><b>GST Type:</b></td><td>{invoice.GST_TYPE}</td></tr>
+                        <tr><td><b>Total Gross:</b></td><td>₹{invoice.TotalGross}</td></tr>
+                        <tr><td><b>GST:</b></td><td>₹{invoice.GST}</td></tr>
+                        <tr><td><b>Total:</b></td><td>₹{invoice.Total}</td></tr>
+                    </table>
+            
+                    <h3>Purchase Details</h3>
+                    <table class='items-table'>
+                        <tr><th>Material</th><th>Qty</th><th>Rate</th><th>GST</th><th>Total</th></tr>";
+
+                    foreach (var item in invoice.InvoiceDetails)
+                    {
+                        invoiceHtml += $@"
+                    <tr>
+                        <td>{item.MaterialName}</td>
+                        <td>{item.Qty}</td>
+                        <td>₹{item.Rate}</td>
+                        <td>₹{item.GSTAmount}</td>
+                        <td>₹{item.Total}</td>
+                    </tr>";
+                    }
+
+                    invoiceHtml += $@"
+                    </table>
+
+                    <h3>Payments</h3>
+                    <table class='items-table'>
+                        <tr><th>Payment Mode</th><th>Reference No</th><th>Amount</th></tr>";
+
+                    foreach (var payment in invoice.installments)
+                    {
+                        invoiceHtml += $@"
+                    <tr>
+                        <td>{payment.Paymentmode}</td>
+                        <td>{payment.RefNo}</td>
+                        <td>₹{payment.Amount}</td>
+                    </tr>";
+                    }
+
+                    invoiceHtml += $@"
+                    </table>
+
+                    <div class='total-section'>
+                        <p><b>Total Paid:</b> ₹{invoice.installments.Sum(i => i.Amount)}</p>
+                        <p><b>Dues:</b> ₹{invoice.Total - invoice.installments.Sum(i => i.Amount)}</p>
+                    </div>
+                </div>
+            </body>
+            </html>";
+
+            return invoiceHtml;
+        }
+
+
         public string createAccountFormate(string FullName, string UserName, string Password)
         {
             var formate = @"<!DOCTYPE html>

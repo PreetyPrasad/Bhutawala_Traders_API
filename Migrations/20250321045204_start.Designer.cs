@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Bhutawala_Traders_API.Migrations
 {
     [DbContext(typeof(ApplicationDBContext))]
-    [Migration("20250204095901_table-added")]
-    partial class tableadded
+    [Migration("20250321045204_start")]
+    partial class start
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -25,6 +25,32 @@ namespace Bhutawala_Traders_API.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("Bhutawala_Traders_API.Models.Admin", b =>
+                {
+                    b.Property<int>("AdminId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("AdminId"));
+
+                    b.Property<string>("ContactNo")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Email")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Password")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UserName")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.HasKey("AdminId");
+
+                    b.ToTable("Admins");
+                });
+
             modelBuilder.Entity("Bhutawala_Traders_API.Models.ApplyCredit", b =>
                 {
                     b.Property<int>("ApplyId")
@@ -33,19 +59,25 @@ namespace Bhutawala_Traders_API.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ApplyId"));
 
-                    b.Property<int>("CreditNoteId")
+                    b.Property<int?>("CreditNoteId")
                         .HasColumnType("int");
 
-                    b.Property<int>("InvoiceId")
+                    b.Property<int?>("InvoiceId")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("LogDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("StaffId")
+                    b.Property<int?>("StaffId")
                         .HasColumnType("int");
 
                     b.HasKey("ApplyId");
+
+                    b.HasIndex("CreditNoteId");
+
+                    b.HasIndex("InvoiceId");
+
+                    b.HasIndex("StaffId");
 
                     b.ToTable("ApplyCredits");
                 });
@@ -78,7 +110,7 @@ namespace Bhutawala_Traders_API.Migrations
                     b.Property<double>("Amount")
                         .HasColumnType("float");
 
-                    b.Property<int>("InvoiceId")
+                    b.Property<int?>("InvoiceId")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("NoteDate")
@@ -87,10 +119,14 @@ namespace Bhutawala_Traders_API.Migrations
                     b.Property<int>("NoteNo")
                         .HasColumnType("int");
 
-                    b.Property<int>("StaffId")
+                    b.Property<int?>("StaffId")
                         .HasColumnType("int");
 
                     b.HasKey("CreditNoteId");
+
+                    b.HasIndex("InvoiceId");
+
+                    b.HasIndex("StaffId");
 
                     b.ToTable("CreditNotes");
                 });
@@ -106,10 +142,7 @@ namespace Bhutawala_Traders_API.Migrations
                     b.Property<double>("Amount")
                         .HasColumnType("float");
 
-                    b.Property<int>("InvoiceId")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("InvoiceMasterInvoiceId")
+                    b.Property<int?>("InvoiceId")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("LogDate")
@@ -124,16 +157,17 @@ namespace Bhutawala_Traders_API.Migrations
                         .HasColumnType("nvarchar(50)");
 
                     b.Property<string>("RefNo")
-                        .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<int>("StaffId")
+                    b.Property<int?>("StaffId")
                         .HasColumnType("int");
 
                     b.HasKey("InstallmentId");
 
-                    b.HasIndex("InvoiceMasterInvoiceId");
+                    b.HasIndex("InvoiceId");
+
+                    b.HasIndex("StaffId");
 
                     b.ToTable("CustomerInstallments");
                 });
@@ -155,13 +189,17 @@ namespace Bhutawala_Traders_API.Migrations
                     b.Property<DateTime>("NoteDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("PurchaseId")
+                    b.Property<int?>("PurchaseId")
                         .HasColumnType("int");
 
-                    b.Property<int>("StaffId")
+                    b.Property<int?>("StaffId")
                         .HasColumnType("int");
 
                     b.HasKey("NoteID");
+
+                    b.HasIndex("PurchaseId");
+
+                    b.HasIndex("StaffId");
 
                     b.ToTable("DebitNotes");
                 });
@@ -177,13 +215,10 @@ namespace Bhutawala_Traders_API.Migrations
                     b.Property<double>("GSTAmount")
                         .HasColumnType("float");
 
-                    b.Property<int>("InvoiceId")
+                    b.Property<int?>("InvoiceId")
                         .HasColumnType("int");
 
-                    b.Property<int?>("InvoiceMasterInvoiceId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("MaterialId")
+                    b.Property<int?>("MaterialId")
                         .HasColumnType("int");
 
                     b.Property<double>("Qty")
@@ -202,7 +237,9 @@ namespace Bhutawala_Traders_API.Migrations
 
                     b.HasKey("InvoiceDetailId");
 
-                    b.HasIndex("InvoiceMasterInvoiceId");
+                    b.HasIndex("InvoiceId");
+
+                    b.HasIndex("MaterialId");
 
                     b.ToTable("InvoiceDetails");
                 });
@@ -224,6 +261,9 @@ namespace Bhutawala_Traders_API.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
+                    b.Property<string>("Email")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<double>("GST")
                         .HasColumnType("float");
 
@@ -243,7 +283,7 @@ namespace Bhutawala_Traders_API.Migrations
                     b.Property<DateTime>("NoticePeriod")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("StaffId")
+                    b.Property<int?>("StaffId")
                         .HasColumnType("int");
 
                     b.Property<double>("Total")
@@ -252,10 +292,14 @@ namespace Bhutawala_Traders_API.Migrations
                     b.Property<double>("TotalGross")
                         .HasColumnType("float");
 
-                    b.Property<int>("TransactionYearId")
+                    b.Property<int?>("TransactionYearId")
                         .HasColumnType("int");
 
                     b.HasKey("InvoiceId");
+
+                    b.HasIndex("StaffId");
+
+                    b.HasIndex("TransactionYearId");
 
                     b.ToTable("InvoiceMasters");
                 });
@@ -271,14 +315,14 @@ namespace Bhutawala_Traders_API.Migrations
                     b.Property<double>("Cost")
                         .HasColumnType("float");
 
-                    b.Property<int>("MaterialId")
+                    b.Property<int?>("MaterialId")
                         .HasColumnType("int");
 
                     b.Property<string>("Note")
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
 
-                    b.Property<int>("PurchaseId")
+                    b.Property<int?>("PurchaseId")
                         .HasColumnType("int");
 
                     b.Property<double>("Qty")
@@ -297,6 +341,12 @@ namespace Bhutawala_Traders_API.Migrations
 
                     b.HasKey("StockId");
 
+                    b.HasIndex("MaterialId");
+
+                    b.HasIndex("PurchaseId");
+
+                    b.HasIndex("StaffId");
+
                     b.ToTable("Inwordstocks");
                 });
 
@@ -313,7 +363,7 @@ namespace Bhutawala_Traders_API.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)");
 
-                    b.Property<int>("CategoryId")
+                    b.Property<int?>("CategoryId")
                         .HasColumnType("int");
 
                     b.Property<string>("Description")
@@ -337,6 +387,9 @@ namespace Bhutawala_Traders_API.Migrations
                     b.Property<double>("Net_Qty")
                         .HasColumnType("float");
 
+                    b.Property<double>("Price")
+                        .HasColumnType("float");
+
                     b.Property<double>("Qty")
                         .HasColumnType("float");
 
@@ -347,7 +400,30 @@ namespace Bhutawala_Traders_API.Migrations
 
                     b.HasKey("MaterialId");
 
+                    b.HasIndex("CategoryId");
+
                     b.ToTable("Materials");
+                });
+
+            modelBuilder.Entity("Bhutawala_Traders_API.Models.OutwardMaster", b =>
+                {
+                    b.Property<int>("OutwardId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("OutwardId"));
+
+                    b.Property<int>("MyProperty")
+                        .HasColumnType("int");
+
+                    b.Property<int>("StaffId")
+                        .HasColumnType("int");
+
+                    b.HasKey("OutwardId");
+
+                    b.HasIndex("StaffId");
+
+                    b.ToTable("OutwardMasters");
                 });
 
             modelBuilder.Entity("Bhutawala_Traders_API.Models.PurchaseMaster", b =>
@@ -382,16 +458,20 @@ namespace Bhutawala_Traders_API.Migrations
                     b.Property<DateTime>("PurchaseDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("SupplierId")
+                    b.Property<int?>("SupplierId")
                         .HasColumnType("int");
 
                     b.Property<double>("Total")
                         .HasColumnType("float");
 
-                    b.Property<int>("TransactionYearId")
+                    b.Property<int?>("TransactionYearId")
                         .HasColumnType("int");
 
                     b.HasKey("PurchaseId");
+
+                    b.HasIndex("SupplierId");
+
+                    b.HasIndex("TransactionYearId");
 
                     b.ToTable("PurchaseMasters");
                 });
@@ -418,7 +498,7 @@ namespace Bhutawala_Traders_API.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
-                    b.Property<int>("PurchaseId")
+                    b.Property<int?>("PurchaseId")
                         .HasColumnType("int");
 
                     b.Property<string>("RefNo")
@@ -426,6 +506,8 @@ namespace Bhutawala_Traders_API.Migrations
                         .HasColumnType("nvarchar(100)");
 
                     b.HasKey("PaymentId");
+
+                    b.HasIndex("PurchaseId");
 
                     b.ToTable("PurchasePayments");
                 });
@@ -438,13 +520,13 @@ namespace Bhutawala_Traders_API.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("PurchaseReturnId"));
 
-                    b.Property<int>("InvoiceId")
+                    b.Property<int?>("InvoiceId")
                         .HasColumnType("int");
 
                     b.Property<DateTime>("LogDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("PurchaseId")
+                    b.Property<int?>("PurchaseId")
                         .HasColumnType("int");
 
                     b.Property<double>("Qty")
@@ -458,15 +540,54 @@ namespace Bhutawala_Traders_API.Migrations
 
                     b.Property<string>("Unit")
                         .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("PurchaseReturnId");
+
+                    b.HasIndex("InvoiceId");
+
+                    b.HasIndex("PurchaseId");
 
                     b.ToTable("PurchaseReturns");
                 });
 
-            modelBuilder.Entity("Bhutawala_Traders_API.Models.SellsReturnDetail", b =>
+            modelBuilder.Entity("Bhutawala_Traders_API.Models.SalesReturn", b =>
+                {
+                    b.Property<int>("SalesReturnId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("SalesReturnId"));
+
+                    b.Property<int?>("InvoiceId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Paymentmode")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("RefNo")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime>("ReturnDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("StaffId")
+                        .HasColumnType("int");
+
+                    b.HasKey("SalesReturnId");
+
+                    b.HasIndex("InvoiceId");
+
+                    b.HasIndex("StaffId");
+
+                    b.ToTable("SalesReturns");
+                });
+
+            modelBuilder.Entity("Bhutawala_Traders_API.Models.SalesReturnDetails", b =>
                 {
                     b.Property<int>("ReturnDetailId")
                         .ValueGeneratedOnAdd()
@@ -474,19 +595,19 @@ namespace Bhutawala_Traders_API.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("ReturnDetailId"));
 
-                    b.Property<int>("InvoiceDetailId")
+                    b.Property<int?>("InvoiceDetailId")
                         .HasColumnType("int");
 
-                    b.Property<int>("InvoiceId")
+                    b.Property<int?>("InvoiceId")
                         .HasColumnType("int");
 
                     b.Property<double>("Qty")
                         .HasColumnType("float");
 
-                    b.Property<int>("SalesReturnId")
+                    b.Property<int?>("SalesReturnId")
                         .HasColumnType("int");
 
-                    b.Property<int>("StockId")
+                    b.Property<int?>("StockId")
                         .HasColumnType("int");
 
                     b.Property<string>("Unit")
@@ -495,6 +616,14 @@ namespace Bhutawala_Traders_API.Migrations
                         .HasColumnType("nvarchar(50)");
 
                     b.HasKey("ReturnDetailId");
+
+                    b.HasIndex("InvoiceDetailId");
+
+                    b.HasIndex("InvoiceId");
+
+                    b.HasIndex("SalesReturnId");
+
+                    b.HasIndex("StockId");
 
                     b.ToTable("SellsReturnDetails");
                 });
@@ -640,6 +769,9 @@ namespace Bhutawala_Traders_API.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("TransactionYearId"));
 
+                    b.Property<string>("CurrentYear")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("YearName")
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
@@ -649,18 +781,224 @@ namespace Bhutawala_Traders_API.Migrations
                     b.ToTable("TransactionYearMasters");
                 });
 
+            modelBuilder.Entity("Bhutawala_Traders_API.Models.ApplyCredit", b =>
+                {
+                    b.HasOne("Bhutawala_Traders_API.Models.CreditNote", "CreditNote")
+                        .WithMany()
+                        .HasForeignKey("CreditNoteId");
+
+                    b.HasOne("Bhutawala_Traders_API.Models.InvoiceMaster", "InvoiceMaster")
+                        .WithMany()
+                        .HasForeignKey("InvoiceId");
+
+                    b.HasOne("Bhutawala_Traders_API.Models.StaffMaster", "StaffMaster")
+                        .WithMany()
+                        .HasForeignKey("StaffId");
+
+                    b.Navigation("CreditNote");
+
+                    b.Navigation("InvoiceMaster");
+
+                    b.Navigation("StaffMaster");
+                });
+
+            modelBuilder.Entity("Bhutawala_Traders_API.Models.CreditNote", b =>
+                {
+                    b.HasOne("Bhutawala_Traders_API.Models.InvoiceMaster", "InvoiceMaster")
+                        .WithMany()
+                        .HasForeignKey("InvoiceId");
+
+                    b.HasOne("Bhutawala_Traders_API.Models.StaffMaster", "StaffMaster")
+                        .WithMany()
+                        .HasForeignKey("StaffId");
+
+                    b.Navigation("InvoiceMaster");
+
+                    b.Navigation("StaffMaster");
+                });
+
             modelBuilder.Entity("Bhutawala_Traders_API.Models.CustomerInstallment", b =>
                 {
-                    b.HasOne("Bhutawala_Traders_API.Models.InvoiceMaster", null)
+                    b.HasOne("Bhutawala_Traders_API.Models.InvoiceMaster", "InvoiceMaster")
                         .WithMany("installments")
-                        .HasForeignKey("InvoiceMasterInvoiceId");
+                        .HasForeignKey("InvoiceId");
+
+                    b.HasOne("Bhutawala_Traders_API.Models.StaffMaster", "StaffMaster")
+                        .WithMany()
+                        .HasForeignKey("StaffId");
+
+                    b.Navigation("InvoiceMaster");
+
+                    b.Navigation("StaffMaster");
+                });
+
+            modelBuilder.Entity("Bhutawala_Traders_API.Models.DebitNote", b =>
+                {
+                    b.HasOne("Bhutawala_Traders_API.Models.PurchaseMaster", "PurchaseMaster")
+                        .WithMany()
+                        .HasForeignKey("PurchaseId");
+
+                    b.HasOne("Bhutawala_Traders_API.Models.StaffMaster", "StaffMaster")
+                        .WithMany()
+                        .HasForeignKey("StaffId");
+
+                    b.Navigation("PurchaseMaster");
+
+                    b.Navigation("StaffMaster");
                 });
 
             modelBuilder.Entity("Bhutawala_Traders_API.Models.InvoiceDetail", b =>
                 {
-                    b.HasOne("Bhutawala_Traders_API.Models.InvoiceMaster", null)
+                    b.HasOne("Bhutawala_Traders_API.Models.InvoiceMaster", "InvoiceMaster")
                         .WithMany("InvoiceDetails")
-                        .HasForeignKey("InvoiceMasterInvoiceId");
+                        .HasForeignKey("InvoiceId");
+
+                    b.HasOne("Bhutawala_Traders_API.Models.Material", "Material")
+                        .WithMany()
+                        .HasForeignKey("MaterialId");
+
+                    b.Navigation("InvoiceMaster");
+
+                    b.Navigation("Material");
+                });
+
+            modelBuilder.Entity("Bhutawala_Traders_API.Models.InvoiceMaster", b =>
+                {
+                    b.HasOne("Bhutawala_Traders_API.Models.StaffMaster", "StaffMaster")
+                        .WithMany()
+                        .HasForeignKey("StaffId");
+
+                    b.HasOne("Bhutawala_Traders_API.Models.TransactionYearMaster", "TransactionYearMaster")
+                        .WithMany()
+                        .HasForeignKey("TransactionYearId");
+
+                    b.Navigation("StaffMaster");
+
+                    b.Navigation("TransactionYearMaster");
+                });
+
+            modelBuilder.Entity("Bhutawala_Traders_API.Models.InwordStock", b =>
+                {
+                    b.HasOne("Bhutawala_Traders_API.Models.Material", "Material")
+                        .WithMany()
+                        .HasForeignKey("MaterialId");
+
+                    b.HasOne("Bhutawala_Traders_API.Models.PurchaseMaster", "PurchaseMaster")
+                        .WithMany()
+                        .HasForeignKey("PurchaseId");
+
+                    b.HasOne("Bhutawala_Traders_API.Models.StaffMaster", "StaffMaster")
+                        .WithMany()
+                        .HasForeignKey("StaffId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Material");
+
+                    b.Navigation("PurchaseMaster");
+
+                    b.Navigation("StaffMaster");
+                });
+
+            modelBuilder.Entity("Bhutawala_Traders_API.Models.Material", b =>
+                {
+                    b.HasOne("Bhutawala_Traders_API.Models.Category", "Category")
+                        .WithMany()
+                        .HasForeignKey("CategoryId");
+
+                    b.Navigation("Category");
+                });
+
+            modelBuilder.Entity("Bhutawala_Traders_API.Models.OutwardMaster", b =>
+                {
+                    b.HasOne("Bhutawala_Traders_API.Models.StaffMaster", "StaffMaster")
+                        .WithMany()
+                        .HasForeignKey("StaffId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("StaffMaster");
+                });
+
+            modelBuilder.Entity("Bhutawala_Traders_API.Models.PurchaseMaster", b =>
+                {
+                    b.HasOne("Bhutawala_Traders_API.Models.Supplier", "Supplier")
+                        .WithMany()
+                        .HasForeignKey("SupplierId");
+
+                    b.HasOne("Bhutawala_Traders_API.Models.TransactionYearMaster", "TransactionYearMaster")
+                        .WithMany()
+                        .HasForeignKey("TransactionYearId");
+
+                    b.Navigation("Supplier");
+
+                    b.Navigation("TransactionYearMaster");
+                });
+
+            modelBuilder.Entity("Bhutawala_Traders_API.Models.PurchasePayment", b =>
+                {
+                    b.HasOne("Bhutawala_Traders_API.Models.PurchaseMaster", "PurchaseMaster")
+                        .WithMany()
+                        .HasForeignKey("PurchaseId");
+
+                    b.Navigation("PurchaseMaster");
+                });
+
+            modelBuilder.Entity("Bhutawala_Traders_API.Models.PurchaseReturn", b =>
+                {
+                    b.HasOne("Bhutawala_Traders_API.Models.InvoiceMaster", "InvoiceMaster")
+                        .WithMany()
+                        .HasForeignKey("InvoiceId");
+
+                    b.HasOne("Bhutawala_Traders_API.Models.PurchaseMaster", "PurchaseMaster")
+                        .WithMany()
+                        .HasForeignKey("PurchaseId");
+
+                    b.Navigation("InvoiceMaster");
+
+                    b.Navigation("PurchaseMaster");
+                });
+
+            modelBuilder.Entity("Bhutawala_Traders_API.Models.SalesReturn", b =>
+                {
+                    b.HasOne("Bhutawala_Traders_API.Models.InvoiceMaster", "InvoiceMaster")
+                        .WithMany()
+                        .HasForeignKey("InvoiceId");
+
+                    b.HasOne("Bhutawala_Traders_API.Models.StaffMaster", "StaffMaster")
+                        .WithMany()
+                        .HasForeignKey("StaffId");
+
+                    b.Navigation("InvoiceMaster");
+
+                    b.Navigation("StaffMaster");
+                });
+
+            modelBuilder.Entity("Bhutawala_Traders_API.Models.SalesReturnDetails", b =>
+                {
+                    b.HasOne("Bhutawala_Traders_API.Models.InvoiceDetail", "InvoiceDetail")
+                        .WithMany()
+                        .HasForeignKey("InvoiceDetailId");
+
+                    b.HasOne("Bhutawala_Traders_API.Models.InvoiceMaster", "InvoiceMaster")
+                        .WithMany()
+                        .HasForeignKey("InvoiceId");
+
+                    b.HasOne("Bhutawala_Traders_API.Models.SalesReturn", "SalesReturn")
+                        .WithMany("SellsReturnDetail")
+                        .HasForeignKey("SalesReturnId");
+
+                    b.HasOne("Bhutawala_Traders_API.Models.InwordStock", "InwordStock")
+                        .WithMany()
+                        .HasForeignKey("StockId");
+
+                    b.Navigation("InvoiceDetail");
+
+                    b.Navigation("InvoiceMaster");
+
+                    b.Navigation("InwordStock");
+
+                    b.Navigation("SalesReturn");
                 });
 
             modelBuilder.Entity("Bhutawala_Traders_API.Models.InvoiceMaster", b =>
@@ -668,6 +1006,11 @@ namespace Bhutawala_Traders_API.Migrations
                     b.Navigation("InvoiceDetails");
 
                     b.Navigation("installments");
+                });
+
+            modelBuilder.Entity("Bhutawala_Traders_API.Models.SalesReturn", b =>
+                {
+                    b.Navigation("SellsReturnDetail");
                 });
 #pragma warning restore 612, 618
         }

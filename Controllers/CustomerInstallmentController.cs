@@ -25,7 +25,7 @@ namespace Bhutawala_Traders_API.Controllers
                 var totalAmount = await _dbContext.CustomerInstallments.DefaultIfEmpty().SumAsync(o => (o != null ? o.Amount : 0));
 
                 if (billDetail != null) {
-                    if ((totalAmount + customerInstallment.Amount) <= billDetail.Total)
+                    if ((totalAmount + customerInstallment.Amount) >= billDetail.Total)
                     {
                         _dbContext.CustomerInstallments.Add(customerInstallment);
                         await _dbContext.SaveChangesAsync();
@@ -33,7 +33,7 @@ namespace Bhutawala_Traders_API.Controllers
                     }
                     else
                     {
-                        return Ok(new { Status = "Ok", Result = "Successfully Saved" });
+                        return Ok(new { Status = "Ok", Result = "Not More then Bill Amount " + (totalAmount + customerInstallment.Amount).ToString() + " & Paid Amount " + customerInstallment.Amount });
                     }
                 }
                 else
@@ -88,13 +88,19 @@ namespace Bhutawala_Traders_API.Controllers
             {
                 var Data = await (from A in _dbContext.CustomerInstallments 
                                   join B in _dbContext.InvoiceMasters on A.InvoiceId equals B.InvoiceId
-                                  join C in _dbContext.StaffMasters on A.StaffId equals C.StaffId
+                                  
                                   select new
                                   {
                                       A.Amount,
                                       A.PaymentDate,
                                       A.RefNo,
-                                      Staff = C.FullName,
+                                      B.InvoiceNo,
+                                      B.Total,
+                                      A.InvoiceId,
+                                      B.CustomerName,
+                                      B.ContactNo,
+                                      A.Paymentmode,
+                                      
 
                                   }).ToListAsync();
                 return Ok(new { Status = "OK", Result = Data });

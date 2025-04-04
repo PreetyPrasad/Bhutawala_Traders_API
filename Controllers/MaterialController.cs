@@ -70,7 +70,41 @@ namespace Bhutawala_Traders_API.Controllers
         {
             try
             {
-                var Data = await _dbContext.Materials.Include(o=> o.Category).ToListAsync();
+                var Data = await _dbContext.Materials.Select(o=> new { 
+                    o.MaterialId,
+                    o.MaterialName,
+                    o.Brand,
+                    CategoryDetail = _dbContext.Categories.Where(c => c.CategoryId == o.CategoryId ).FirstOrDefault(),
+                    o.Unit,
+                    o.Net_Qty,
+                    o.GST,
+                    o.GST_Type,
+                    o.Price,
+                    o.Qty,
+                    InwardStock = _dbContext.Inwordstocks.Where(X=> X.MaterialId == o.MaterialId).DefaultIfEmpty().Sum(x => (x != null ? x.Qty : 0)),
+                    stockSale = _dbContext.InvoiceDetails.Where(X => X.MaterialId == o.MaterialId).DefaultIfEmpty().Sum(x => (x != null ? x.Qty : 0)),
+                    returnStock = _dbContext.SellsReturnDetails.Where(X=> X.MaterialId == o.MaterialId).DefaultIfEmpty().Sum(x => (x != null ? x.Qty : 0)),
+                    outwardStock = _dbContext.OutwordItems.Where(X => X.MaterialId == o.MaterialId).DefaultIfEmpty().Sum(x => (x != null ? x.Qty : 0)),
+                    StaffName=_dbContext.StaffMasters.Where(c => c.StaffId == o.StaffId).Select(c=>c.FullName).FirstOrDefault()
+                }).Select(o=> new
+                {
+                    o.MaterialId,
+                    o.MaterialName,
+                    o.Brand,
+                    o.CategoryDetail,
+                    o.Unit,
+                    o.Net_Qty,
+                    o.GST,
+                    o.GST_Type,
+                    o.Price,
+                    o.Qty,
+                    o.InwardStock,
+                    o.stockSale,
+                    o.returnStock,
+                    o.outwardStock,
+                    staffName=o.StaffName,
+                    Stock = (o.InwardStock + o.returnStock) - (o.stockSale + o.outwardStock)
+                }).ToListAsync();
                 return Ok(new { Status = "OK", Result = Data });
             }
             catch (Exception ex)

@@ -25,18 +25,53 @@ namespace Bhutawala_Traders_API.Controllers
                 var materialExists = await _dbContext.Materials.AnyAsync(o => o.MaterialId == InwordStock.MaterialId);
                 List<string> Error = new List<string>();
 
-                if (!purchaseExists) {
-                    Error.Add("Purchase Entry not exists");
+                if (!purchaseExists)
+                {
+                    Error.Add("Purchase Entry does not exist");
                 }
 
                 if (!materialExists)
                 {
-                    Error.Add("Material Entry not exists");
+                    Error.Add("Material Entry does not exist");
                 }
 
                 if (Error.Count == 0)
                 {
-                    _dbContext.Inwordstocks.Add(InwordStock);
+                    var existingStock = await _dbContext.Inwordstocks
+                        .FirstOrDefaultAsync(o => o.PurchaseId == InwordStock.PurchaseId && o.MaterialId == InwordStock.MaterialId);
+
+                    var sumInward = await _dbContext.Inwordstocks
+                        .Where(o => o.PurchaseId == InwordStock.PurchaseId)
+                        .SumAsync(o => (o != null ? (o.Qty * o.Cost) : 0));
+
+                    var totalPurchaseAmount = await _dbContext.PurchaseMasters
+                        .Where(o => o.PurchaseId == InwordStock.PurchaseId)
+                        .Select(o => o.Total)
+                        .FirstOrDefaultAsync();
+
+                    var newStockAmount = (existingStock != null ? (existingStock.Qty + InwordStock.Qty) * InwordStock.Cost : InwordStock.Qty * InwordStock.Cost);
+
+                    if (sumInward + newStockAmount > totalPurchaseAmount)
+                    {
+                        return Ok(new { Status = "Fail", Result = "Inward Stock Amount is greater than Purchase Amount" });
+                    }
+
+                    if (existingStock != null)
+                    {
+                        // Update existing stock
+                        existingStock.Qty += InwordStock.Qty;
+                        existingStock.Cost = InwordStock.Cost; // Update cost if needed
+                        existingStock.RecivedDate = InwordStock.RecivedDate;
+                        existingStock.Note = InwordStock.Note;
+
+                        _dbContext.Inwordstocks.Update(existingStock);
+                    }
+                    else
+                    {
+                        // Add new stock entry
+                        _dbContext.Inwordstocks.Add(InwordStock);
+                    }
+
                     await _dbContext.SaveChangesAsync();
                     return Ok(new { Status = "Ok", Result = "Successfully Saved" });
                 }
@@ -51,7 +86,43 @@ namespace Bhutawala_Traders_API.Controllers
             }
         }
 
-        [HttpPut]
+
+
+        [HttpGet]
+        [Route("InwordStocks/{PurchaseId}")]
+        public async Task<IActionResult> getInwordStock(int PurchaseId)
+        {
+            try
+            {
+                var Data = await (from A in _dbContext.Inwordstocks
+                                  join B in _dbContext.Materials on A.MaterialId equals B.MaterialId
+                                  join C in _dbContext.PurchaseMasters on A.PurchaseId equals C.PurchaseId
+                                  join E in _dbContext.StaffMasters on A.StaffId equals E.StaffId
+                                  where A.PurchaseId == PurchaseId
+                                  select new
+                                  {
+                                      A.StockId,
+                                      B.MaterialName,
+                                      C.BillNo,
+                                      C.PurchaseDate,
+                                      B.Qty,
+                                      A.Cost,
+                                      A.RecivedDate,
+                                      A.Note,
+                                        B.Unit,
+                                        Iwarded = A.Qty,
+                                      Staffname = E.FullName
+                                  }).ToListAsync();
+
+                return Ok(new { Status = "OK", Result = Data });
+            }
+            catch (Exception ex)
+            {
+                return Ok(new { Status = "Fail", Result = "Error: " + ex.Message });
+            }
+        }
+
+        [HttpPost]
         [Route("Edit")]
         public async Task<IActionResult> EditInwordStock(InwordStock InwordStock)
         {

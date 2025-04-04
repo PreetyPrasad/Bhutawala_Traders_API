@@ -21,43 +21,56 @@ namespace Bhutawala_Traders_API.Controllers
         {
             try
             {
-                if (!_dbContext.PurchaseReturns.Any(o => o.PurchaseReturnId == purchaseReturn.PurchaseReturnId))
+                if (purchaseReturn == null || purchaseReturn.Qty <= 0)
                 {
-                    _dbContext.PurchaseReturns.Add(purchaseReturn);
-                    await _dbContext.SaveChangesAsync();
-                    return Ok(new { Status = "Ok", Result = "Successfully Saved" });
+                    return BadRequest(new { Status = "Fail", Result = "Invalid Qty value" });
                 }
-                else
+                var purchaseMaster = await _dbContext.PurchaseMasters
+                    .FirstOrDefaultAsync(pm => pm.PurchaseId == purchaseReturn.PurchaseId);
+
+                if (purchaseMaster == null)
                 {
-                    return Ok(new { Status = "Fail", Result = "Already Exists" });
+                    return BadRequest(new { Status = "Fail", Result = "Invalid PurchaseId" });
                 }
+
+                var newPurchaseReturn = new PurchaseReturn
+                {
+                    Qty = purchaseReturn.Qty,
+                    Unit = string.Empty,
+                    PurchaseId = purchaseReturn.PurchaseId,
+                    InvoiceId = null,
+                    ReturnDate = DateTime.UtcNow,
+                    LogDate = DateTime.UtcNow
+                };
+
+                _dbContext.PurchaseReturns.Add(newPurchaseReturn);
+                await _dbContext.SaveChangesAsync();
+
+                var inwordStocks = await _dbContext.Inwordstocks
+                    .Where(i => i.PurchaseId == newPurchaseReturn.PurchaseId)
+                    .ToListAsync();
+
+                foreach (var stock in inwordStocks)
+                {
+                    if (stock.Qty >= purchaseReturn.Qty)
+                    {
+                        stock.Qty -= purchaseReturn.Qty;
+                        _dbContext.Inwordstocks.Update(stock);
+                    }
+                    else
+                    {
+                        stock.Qty = 0;
+                        _dbContext.Inwordstocks.Update(stock);
+                    }
+                }
+
+                await _dbContext.SaveChangesAsync();
+
+                return Ok(new { Status = "Ok", Result = "Successfully Saved", Qty = newPurchaseReturn.Qty });
             }
             catch (Exception ex)
             {
                 return BadRequest(new { Status = "Fail", Result = ex.Message });
-            }
-        }
-
-        [HttpPost]
-        [Route("Edit")]
-        public async Task<IActionResult> EditPurchaseReturn(PurchaseReturn purchaseReturn)
-        {
-            try
-            {
-                if (!_dbContext.PurchaseReturns.Any(o => o.PurchaseReturnId == purchaseReturn.PurchaseReturnId))
-                {
-                    _dbContext.PurchaseReturns.Update(purchaseReturn);
-                    await _dbContext.SaveChangesAsync();
-                    return Ok(new { Status = "OK", Result = "Successfully Saved" });
-                }
-                else
-                {
-                    return Ok(new { Status = "Fail", Result = "Already Exists" });
-                }
-            }
-            catch (Exception ex)
-            {
-                return Ok(new { Status = "Fail", Result = "Error: " + ex.Message });
             }
         }
 
@@ -67,7 +80,23 @@ namespace Bhutawala_Traders_API.Controllers
         {
             try
             {
-                var Data = await _dbContext.PurchaseReturns.ToArrayAsync();
+                var Data = await (from A in _dbContext.PurchaseReturns
+                                  join B in _dbContext.PurchaseMasters on A.PurchaseId equals B.PurchaseId
+                                  join S in _dbContext.Suppliers on B.SupplierId equals S.SupplierId
+                                  select new
+                                  {
+                                      B.PurchaseId,
+                                      B.GST_Type,
+                                      B.Total,
+                                      B.BillNo,
+                                      B.PurchaseDate,
+                                      B.GST,
+                                      B.GrossTotal,
+                                      B.NoticePeriod,
+                                      Supplier = S.BusinessName,
+                                  }).ToListAsync();
+
+
                 return Ok(new { Status = "OK", Result = Data });
             }
             catch (Exception ex)
@@ -75,6 +104,52 @@ namespace Bhutawala_Traders_API.Controllers
                 return Ok(new { Status = "Fail", Result = "Error: " + ex.Message });
             }
         }
+
+
+        [HttpGet]
+        [Route("purchaseDetail/{BillNo}/{InvoiceDate}")]
+        public async Task<IActionResult> getPurchaseReturn(string BillNo, DateTime InvoiceDate)
+        {
+            try
+            {
+                var Data = await (from B in _dbContext.PurchaseMasters
+                                  join S in _dbContext.Suppliers on B.SupplierId equals S.SupplierId
+                                  select new
+                                  {
+                                      B.PurchaseId,
+                                      B.GST_Type,
+                                      B.Total,
+                                      B.BillNo,
+                                      B.PurchaseDate,
+                                      B.GST,
+                                      B.GrossTotal,
+                                      B.NoticePeriod,
+                                      Supplier = S.BusinessName,
+                                      stocks = (from I in _dbContext.Inwordstocks
+                                                join M in _dbContext.Materials on I.MaterialId equals M.MaterialId
+                                                where I.PurchaseId == B.PurchaseId
+                                                select new
+                                                {
+                                                    I.StockId,
+                                                    I.Qty,
+                                                    I.Cost,
+                                                    I.MaterialId,
+                                                    M.MaterialName,
+                                                    M.Price,
+                                                    M.Brand,
+                                                    M.Unit,
+                                                }).ToList()
+                                  }).Where(o => o.BillNo == BillNo && o.PurchaseDate == InvoiceDate).ToListAsync();
+
+
+                return Ok(new { Status = "OK", Result = Data });
+            }
+            catch (Exception ex)
+            {
+                return Ok(new { Status = "Fail", Result = "Error: " + ex.Message });
+            }
+        }
+
         [HttpGet]
         [Route("Details/{Id}")]
         public async Task<IActionResult> getDetails(int? Id)
@@ -97,6 +172,8 @@ namespace Bhutawala_Traders_API.Controllers
                 return Ok(new { Status = "Fail", Result = "Error: " + ex.Message });
             }
         }
+
+
 
         [HttpGet]
         [Route("Remove/{Id}")]

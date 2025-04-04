@@ -12,6 +12,7 @@ namespace Bhutawala_Traders_API.Models
 
         [Key]
         public int SalesReturnId { get; set; }
+
         [ForeignKey(nameof(InvoiceMaster))]
         public int? InvoiceId { get; set; }
         public virtual InvoiceMaster? InvoiceMaster { get; set; }
@@ -21,10 +22,12 @@ namespace Bhutawala_Traders_API.Models
         [StringLength(50, ErrorMessage = "Payment Mode cannot exceed 50 characters.")]
         public string Paymentmode { get; set; } = string.Empty;
 
-        [Required(ErrorMessage = "Reference Number is required.")]
         [StringLength(100, ErrorMessage = "Reference Number cannot exceed 100 characters.")]
         public string? RefNo { get; set; }
         public DateTime ReturnDate { get; set; } = DateTime.Now;
+
+        public double BillReturnAmount { get; set; }
+        public double ReturnAmount { get; set; }
 
         [ForeignKey(nameof(StaffMaster))]
         public int? StaffId { get; set; }

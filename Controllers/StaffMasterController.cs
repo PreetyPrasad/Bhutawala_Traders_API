@@ -69,7 +69,7 @@ namespace Bhutawala_Traders_API.Controllers
 
                 // ✅ Check if FullName exists
                 var existingStaff = await _dbContext.StaffMasters
-                                                    .Where(o => o.FullName == staff.UserName)
+                                                    .Where((o => o.FullName == staff.UserName))
                                                     .FirstOrDefaultAsync();
 
                 if (existingStaff != null)
@@ -104,6 +104,7 @@ namespace Bhutawala_Traders_API.Controllers
                 return Ok(new { Status = "Fail", Result = Exp.Message });
             }
         }
+
 
 
         [HttpPost]
@@ -196,7 +197,7 @@ namespace Bhutawala_Traders_API.Controllers
         }
 
         [HttpPost]
-        [Route("ForgotPasswd")]
+        [Route("ForgotPasswd/{FullName}")]
         public async Task<IActionResult> ForgotPasswd(string FullName)
         {
             try
@@ -240,6 +241,39 @@ namespace Bhutawala_Traders_API.Controllers
             return Ok(new { Password = aESCrypto.Decrypt(Passwd) });
         }
 
+        //[HttpPost]
+        //[Route("ChangePassword")]
+        //public async Task<IActionResult> changePassword(StaffMaster Model)
+        //{
+        //    try
+        //    {
+        //        var ExistData = await _dbContext.StaffMasters.FindAsync(Model.StaffId);
+        //        if (ExistData != null)
+        //        {
+        //            if (ExistData.Password == Model.OldPassword)
+        //            {
+        //                ExistData.Password = Model.NewPassword;
+        //                _dbContext.StaffMasters.Update(ExistData);
+        //                await _dbContext.SaveChangesAsync();
+        //                return Ok(new { Status = "Ok", Result = "Password Change Successfully" });
+        //            }
+        //            else
+        //            {
+        //                return Ok(new { Status = "Fail", Result = "Old Password is Incorrect" });
+
+        //            }
+        //        }
+        //        else
+        //        {
+        //            return Ok(new { Status = "Fail", Result = "Not Found" });
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return Ok(new { Status = "Fail", Result = "Error: " + ex.Message });
+
+        //    }
+        //}
         [HttpPost]
         [Route("ChangePassword")]
         public async Task<IActionResult> changePassword(StaffMaster Model)
@@ -247,11 +281,15 @@ namespace Bhutawala_Traders_API.Controllers
             try
             {
                 var ExistData = await _dbContext.StaffMasters.FindAsync(Model.StaffId);
+                AESCrypto aESCrypto = new AESCrypto();
+                var encPasswd = aESCrypto.Encrypt(Model.OldPassword);   
+
+
                 if (ExistData != null)
                 {
-                    if (ExistData.Password == Model.OldPassword)
+                    if (ExistData.Password == encPasswd)
                     {
-                        ExistData.Password = Model.NewPassword;
+                        ExistData.Password = aESCrypto.Encrypt(Model.NewPassword);
                         _dbContext.StaffMasters.Update(ExistData);
                         await _dbContext.SaveChangesAsync();
                         return Ok(new { Status = "Ok", Result = "Password Change Successfully" });
@@ -270,9 +308,7 @@ namespace Bhutawala_Traders_API.Controllers
             catch (Exception ex)
             {
                 return Ok(new { Status = "Fail", Result = "Error: " + ex.Message });
-
             }
         }
-
     }
 }

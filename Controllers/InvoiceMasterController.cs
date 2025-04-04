@@ -1,5 +1,6 @@
 ﻿using Bhutawala_Traders_API.ApplicationContext;
 using Bhutawala_Traders_API.Models;
+using Bhutawala_Traders_API.Repositories;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -43,16 +44,12 @@ namespace Bhutawala_Traders_API.Controllers
                 {
                     if (installment.Paymentmode == "Credit Note")
                     {
-                        if (!int.TryParse(installment.RefNo, out int CreditNoteId))
-                        {
-                            return BadRequest(new { Status = "Fail", Result = "Invalid Credit Note Reference Number." });
-                        }
-
+                        
                         var InvoiceId = invoiceMaster.InvoiceId; // Use the assigned InvoiceId
                         ApplyCredit AC = new ApplyCredit()
                         {
                             StaffId = invoiceMaster.StaffId,
-                            CreditNoteId = CreditNoteId,
+                            CreditNoteId = Convert.ToInt32(installment.RefNo),
                             InvoiceId = InvoiceId,
                             LogDate = DateTime.Now
                         };
@@ -62,7 +59,11 @@ namespace Bhutawala_Traders_API.Controllers
                     }
                 }
 
-                return Ok(new { Status = "Ok", Result = "Successfully Saved" });
+                htmlFormater formateHtml = new htmlFormater();
+                var htmlFormate = formateHtml.GenerateInvoiceHtml(invoiceMaster);
+                EmailSender sendmail= new EmailSender();
+                sendmail.SendEmail(invoiceMaster.Email, "Invoice Receipt", htmlFormate);
+                return Ok(new { Status = "Ok", Result = _dbContext.InvoiceMasters.Max(o=> o.InvoiceId) });
             }
             catch (DbUpdateException dbEx)
             {
@@ -78,12 +79,68 @@ namespace Bhutawala_Traders_API.Controllers
 
 
         [HttpGet]
-        [Route("List/{FinancialYear}")]
+        [Route("List")]
         public async Task<IActionResult> getInvoiceMaster(int FinancialYear)
         {
             try
             {
-                var Data = await _dbContext.InvoiceMasters.Where(o=> o.TransactionYearId == FinancialYear).ToArrayAsync();
+                //var Data = await _dbContext.InvoiceMasters.Where(o=> o.TransactionYearId == _dbContext.TransactionYearMasters.Where(T=> T.CurrentYear == "True").Select(S=> S.TransactionYearId).FirstOrDefault()).ToArrayAsync();
+                var Data = await _dbContext.InvoiceMasters.ToListAsync();
+                return Ok(new { Status = "OK", Result = Data });
+            }
+            catch (Exception ex)
+            {
+                return Ok(new { Status = "Fail", Result = "Error: " + ex.Message });
+            }
+        }
+
+        [HttpGet]
+        [Route("Dues")]
+        public async Task<IActionResult> getInvoiceDues()
+        {
+            try
+            {
+                var Data = await (from invoice in _dbContext.InvoiceMasters
+                                  join installment in _dbContext.CustomerInstallments
+                                      on invoice.InvoiceId equals installment.InvoiceId into installmentGroup
+                                  from installment in installmentGroup.DefaultIfEmpty() // Left join for installments
+                                  join returnInvoice in _dbContext.SalesReturns
+                                      on invoice.InvoiceId equals returnInvoice.InvoiceId into returnInvoiceGroup
+                                  from returnInvoice in returnInvoiceGroup.DefaultIfEmpty() // Left join for sales returns
+                                  group new { invoice, installment, returnInvoice } by new
+                                  {
+                                      invoice.InvoiceId,
+                                      invoice.InvoiceDate,
+                                      invoice.InvoiceNo,
+                                      invoice.CustomerName,
+                                      invoice.Total,
+                                      invoice.ContactNo,
+                                      invoice.TotalGross,
+                                      invoice.GST,
+                                      invoice.GST_TYPE,
+                                      invoice.NoticePeriod,
+                                      invoice.TransactionYearId,
+                                      BillReturnAmount = (returnInvoice.BillReturnAmount != null ? returnInvoice.BillReturnAmount : 0)
+                                  } into g
+                                  select new
+                                  {
+                                      g.Key.InvoiceId,
+                                      g.Key.InvoiceDate,
+                                      g.Key.InvoiceNo,
+                                      g.Key.CustomerName,
+                                      g.Key.Total,
+                                      g.Key.ContactNo,
+                                      g.Key.TotalGross,
+                                      g.Key.GST,
+                                      g.Key.GST_TYPE,
+                                      g.Key.NoticePeriod,
+                                      g.Key.TransactionYearId,
+                                      paid = g.Sum(x => x.installment != null ? x.installment.Amount : 0), // Handle null
+                                      returnInvoice = g.Key.BillReturnAmount
+                                  }).ToArrayAsync();
+
+
+
                 return Ok(new { Status = "OK", Result = Data });
             }
             catch (Exception ex)
@@ -124,23 +181,30 @@ namespace Bhutawala_Traders_API.Controllers
                 
                 var invoiceDetail = await (from A in _dbContext.InvoiceDetails 
                                   join B in _dbContext.Materials on A.MaterialId equals B.MaterialId
+                                  join C in _dbContext.Categories on B.CategoryId equals C.CategoryId
                                   where (A.InvoiceId == Id)
                                   select new
                                   {
                                       A.InvoiceId,
                                       B.MaterialName,
+                                      B.GST,
                                       A.InvoiceDetailId,
                                       A.Rate,
                                       A.Qty,
                                       A.Unit,
                                       A.GSTAmount,
-                                      A.Total
+                                      A.Total,
+                                      C.CategoryName,
+                                      B.GST_Type
                                   }).ToListAsync();
+
+                var invoicePayment = await _dbContext.CustomerInstallments.Where(o=> o.InvoiceId == Id).ToListAsync();
 
                 var Data = await _dbContext.InvoiceMasters
                                            .Where(o => o.InvoiceId == Id)
                                            .Select(o=> new
                                            {
+                                               invoicePayment = invoicePayment,
                                                invoiceDetail = invoiceDetail,
                                                o.InvoiceId,
                                                o.InvoiceNo,

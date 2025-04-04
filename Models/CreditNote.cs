@@ -18,6 +18,6 @@ namespace Bhutawala_Traders_API.Models
 
         public double Amount { get; set; }
         public int NoteNo { get; set; }
-        public DateTime NoteDate { get; set; }
+        public DateTime NoteDate { get; set; } = DateTime.Now;
     }
 }

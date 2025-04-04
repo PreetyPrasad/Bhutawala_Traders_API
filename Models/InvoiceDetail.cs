@@ -42,5 +42,8 @@ namespace Bhutawala_Traders_API.Models
 
         [Range(0, double.MaxValue, ErrorMessage = "Total must be non-negative.")]
         public double Total { get; set; }
+
+        [NotMapped]
+        public string? MaterialName { get; set; }
     }
 }

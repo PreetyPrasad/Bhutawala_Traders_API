@@ -23,6 +23,7 @@ namespace Bhutawala_Traders_API.Controllers
             {
                 if (await _dbContext.Suppliers.AnyAsync(o => o.SupplierId == purchaseMaster.SupplierId))
                 {
+                    purchaseMaster.TransactionYearId = await _dbContext.TransactionYearMasters.Where(o => o.CurrentYear == "True").Select(o => o.TransactionYearId).FirstOrDefaultAsync();
                     if (!await _dbContext.PurchaseMasters.AnyAsync(o => o.SupplierId == purchaseMaster.SupplierId && o.TransactionYearId == purchaseMaster.TransactionYearId && o.BillNo == o.BillNo))
                     {
                         _dbContext.PurchaseMasters.Add(purchaseMaster);
@@ -74,7 +75,20 @@ namespace Bhutawala_Traders_API.Controllers
         {
             try
             {
-                var Data = await _dbContext.PurchaseMasters.ToArrayAsync();
+                var Data = await (from A in _dbContext.PurchaseMasters
+                                  join B in _dbContext.Suppliers on A.SupplierId equals B.SupplierId
+                                  select new
+                                  {
+                                      A.PurchaseId,
+                                      A.GrossTotal,
+                                      A.Total,
+                                      A.GST_Type,
+                                      A.BillNo,
+                                      A.PurchaseDate,
+                                      A.NoticePeriod,
+                                      B.BusinessName,
+                                      A.GST
+                                  }).ToListAsync();
                 return Ok(new { Status = "OK", Result = Data });
             }
             catch (Exception ex)
@@ -82,6 +96,7 @@ namespace Bhutawala_Traders_API.Controllers
                 return Ok(new { Status = "Fail", Result = "Error: " + ex.Message });
             }
         }
+
         [HttpGet]
         [Route("Details/{Id}")]
         public async Task<IActionResult> getDetails(int? Id)
